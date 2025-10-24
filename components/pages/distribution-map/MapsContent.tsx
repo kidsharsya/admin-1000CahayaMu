@@ -1,8 +1,9 @@
 'use client';
 import dynamic from 'next/dynamic';
+import MapSkeleton from '@/components/skeleton/MapSkeleton';
 const MapContainer = dynamic(() => import('./MapContainer'), {
   ssr: false,
-  loading: () => <p>Memuat peta...</p>,
+  loading: () => <MapSkeleton />,
 });
 import MapFilter from './MapFilter';
 
