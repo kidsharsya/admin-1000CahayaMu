@@ -46,7 +46,11 @@ export default function MapFilter() {
               </label>
               <label className="flex items-center gap-2">
                 <input type="checkbox" defaultChecked />
-                <span>Limbah</span>
+                <span>Sampah</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input type="checkbox" defaultChecked />
+                <span>Makanan</span>
               </label>
             </div>
           </div>
