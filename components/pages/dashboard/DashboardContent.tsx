@@ -8,7 +8,7 @@ import { TrendEmisiBarChart } from './BarChartEmisi';
 
 export function DashboardContent() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Row 1: Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard title="Total Emisi Karbon" value="2.847.593" unit="CO2e (ton)" change="+12.3% dari bulan lalu" changeType="up" />
@@ -18,7 +18,7 @@ export function DashboardContent() {
       </div>
 
       {/* Row 2: Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="p-4 bg-white rounded-2xl shadow-sm">
           <h3 className="font-semibold text-gray-700 mb-2">Tren Emisi Karbon Nasional</h3>
           <p className="text-sm text-gray-500 mb-4">Per bulan Per Kategori (2025)</p>
@@ -33,7 +33,7 @@ export function DashboardContent() {
       </div>
 
       {/* Row 3: Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <TopProvinsiCard />
         <TrendEmisiBarChart />
       </div>

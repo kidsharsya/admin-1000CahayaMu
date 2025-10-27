@@ -1,5 +1,5 @@
 import { MapsContent } from '@/components/pages/distribution-map/MapsContent';
 
-export default function LoginPage() {
+export default function DistributionMapPage() {
   return <MapsContent />;
 }

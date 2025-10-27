@@ -1,7 +1,5 @@
-export default function EmissionsPage() {
-  return (
-    <div>
-      <h1>Data Emisi</h1>
-    </div>
-  );
+import { EmissionContent } from '@/components/pages/emissions/EmissionContent';
+
+export default function EmissionPage() {
+  return <EmissionContent />;
 }
