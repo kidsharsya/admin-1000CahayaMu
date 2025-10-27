@@ -17,7 +17,7 @@ export function EmissionRow({ name, type, emission, emission_avg, date }: Emissi
       <td className="text-gray-700 font-medium">{emission}</td>
       <td className="text-gray-700 font-medium">{emission_avg}</td>
       <td>
-        <Button className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs px-3 py-2">Lihat Detail</Button>
+        <Button className="bg-white border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white text-xs px-3 py-2">Lihat Detail</Button>
       </td>
     </tr>
   );

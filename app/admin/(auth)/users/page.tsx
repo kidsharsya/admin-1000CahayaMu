@@ -1,7 +1,5 @@
-export default function UserPage() {
-  return (
-    <div>
-      <h1>Data Pengguna</h1>
-    </div>
-  );
+import { UserContent } from '@/components/pages/user/UserContent';
+
+export default function EmissionPage() {
+  return <UserContent />;
 }
