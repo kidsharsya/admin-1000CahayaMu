@@ -1,110 +1,88 @@
 'use client';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, Leaf } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image';
+import { loginAdmin } from '@/lib/api/auth';
 
 export function LoginCard() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const validateEmail = (value: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!value) {
-      setEmailError('Email is required');
-      return false;
-    }
-    if (!emailRegex.test(value)) {
-      setEmailError('Invalid email format');
-      return false;
-    }
-    setEmailError('');
-    return true;
+  const validateForm = () => {
+    if (!email.trim()) return 'Email wajib diisi.';
+    if (!/\S+@\S+\.\S+/.test(email)) return 'Format email tidak valid.';
+    if (!password.trim()) return 'Password wajib diisi.';
+    if (password.length < 6) return 'Password minimal 6 karakter.';
+    return '';
   };
 
-  const validatePassword = (value: string) => {
-    if (!value) {
-      setPasswordError('Password is required');
-      return false;
-    }
-    if (value.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      return false;
-    }
-    setPasswordError('');
-    return true;
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
-    if (isEmailValid && isPasswordValid) {
-      // Simulate login and redirect
-      router.push('/admin/dashboard');
+    setErrorMsg('');
+
+    const validationError = validateForm();
+    if (validationError) {
+      setErrorMsg(validationError);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await loginAdmin(email, password);
+      if (res.data.is_admin) {
+        router.push('/admin/dashboard');
+      } else {
+        setErrorMsg('Access denied. You are not an admin.');
+        localStorage.clear();
+      }
+    } catch (error: any) {
+      setErrorMsg(error.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="text-center">
+    <div className="w-full max-w-md mx-auto bg-white shadow-lg rounded-2xl p-6">
+      <div className="text-center mb-6">
         <div className="flex justify-center mb-4">
-          <div className="rounded-lg flex items-center justify-center">
-            <Image src="/asset/logo/logo.png" alt="logo" width={100} height={100} />
-          </div>
+          <Image src="/asset/logo/logo.png" alt="logo" width={100} height={100} />
         </div>
-        <CardTitle className="text-2xl font-bold text-slate-900">1000 CahayaMu Admin</CardTitle>
+        <h2 className="text-2xl font-bold text-slate-900">1000 CahayaMu Admin</h2>
         <p className="text-slate-600">Login</p>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-              <Input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  validateEmail(e.target.value);
-                }}
-                className={`pl-10 h-10 ${emailError ? 'border-red-500' : ''}`}
-              />
-            </div>
-            {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
-          </div>
-          <div className="space-y-1">
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
-              <Input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  validatePassword(e.target.value);
-                }}
-                className={`pl-10 pr-10 h-10 ${passwordError ? 'border-red-500' : ''}`}
-              />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400">
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-              </button>
-            </div>
-            {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
-          </div>
-          <Button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600">
-            Login
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="relative">
+          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full h-10 pl-10 pr-3 rounded-md border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none" />
+        </div>
+        <div className="relative">
+          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full h-10 pl-10 pr-10 rounded-md border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          />
+          <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+          </button>
+        </div>
+
+        {errorMsg && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
+
+        <button type="submit" disabled={loading} className={`w-full bg-emerald-500 hover:bg-emerald-600 text-white font-medium py-2 rounded-md transition ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}>
+          {loading ? 'Logging in...' : 'Login'}
+        </button>
+      </form>
+    </div>
   );
 }
