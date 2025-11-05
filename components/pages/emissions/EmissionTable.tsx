@@ -1,4 +1,3 @@
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { EmissionRow } from './EmissionRow';
 import { Database } from 'lucide-react';
 import { emissionUser } from '@/data/EmissionUser';
@@ -12,7 +11,7 @@ export function EmissionTable() {
       </div>
       <p className="text-sm text-gray-500 mb-4">Menampilkan {emissionUser.length} dari seluruh data emisi</p>
 
-      <ScrollArea className="w-full">
+      <div className="w-full">
         <table className="w-full text-sm">
           <thead className="text-gray-500 text-left border-b">
             <tr>
@@ -29,7 +28,7 @@ export function EmissionTable() {
             ))}
           </tbody>
         </table>
-      </ScrollArea>
+      </div>
     </div>
   );
 }

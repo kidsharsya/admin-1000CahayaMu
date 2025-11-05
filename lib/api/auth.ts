@@ -26,7 +26,8 @@ export async function loginAdmin(email: string, password: string) {
     document.cookie = `is_admin=${isAdmin}; path=/;`;
 
     return data;
-  } catch (err: any) {
-    throw new Error(err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(message);
   }
 }

@@ -41,8 +41,9 @@ export function LoginCard() {
         setErrorMsg('Access denied. You are not an admin.');
         localStorage.clear();
       }
-    } catch (error: any) {
-      setErrorMsg(error.message || 'Login failed');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      setErrorMsg(message || 'Login failed');
     } finally {
       setLoading(false);
     }

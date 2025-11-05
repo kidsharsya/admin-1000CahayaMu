@@ -14,6 +14,10 @@ const pathTitles: Record<string, string> = {
   '/admin/distribution-map': 'Peta Persebaran Emisi',
   '/admin/users': 'Manajemen Pengguna',
   '/admin/settings': 'Pengaturan',
+  '/admin/settings/transportation': 'Pengaturan Transportasi',
+  '/admin/settings/electricity': 'Pengaturan Listrik',
+  '/admin/settings/waste': 'Pengaturan Sampah',
+  '/admin/settings/food': 'Pengaturan Makanan',
 };
 
 export default function Layout({ children }: LayoutProps) {

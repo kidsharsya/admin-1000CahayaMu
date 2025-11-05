@@ -1,32 +1,37 @@
 'use client';
 import { Search } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { useState } from 'react';
 
 export function UserFilter() {
+  const [selectedType, setSelectedType] = useState('semua');
+
   return (
     <div className="flex flex-wrap items-center gap-3">
       {/* Search */}
       <div className="relative min-w-[200px]">
         <Search className="absolute left-3 top-2.5 text-gray-400 h-4 w-4" />
-        <Input placeholder="Cari Nama Pengguna" className="pl-9 w-[330px]" />
+        <input
+          type="text"
+          placeholder="Cari Nama Pengguna"
+          className="pl-9 w-[330px] rounded-md border border-gray-300 bg-white py-2 text-sm text-gray-700 placeholder:text-gray-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition"
+        />
       </div>
 
       {/* Jenis Pengguna */}
-      <Select>
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Semua Pengguna" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="semua">Semua Pengguna</SelectItem>
-          <SelectItem value="individu">Individu</SelectItem>
-          <SelectItem value="lembaga">Lembaga</SelectItem>
-        </SelectContent>
-      </Select>
+      <select
+        value={selectedType}
+        onChange={(e) => setSelectedType(e.target.value)}
+        className="w-[180px] rounded-md border border-gray-300 bg-white py-2 px-3 text-sm text-gray-700 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition"
+      >
+        <option value="semua">Semua Pengguna</option>
+        <option value="individu">Individu</option>
+        <option value="lembaga">Lembaga</option>
+      </select>
 
-      {/* Tombol Ekspor */}
-      <Button className="ml-auto bg-emerald-500 hover:bg-emerald-600 text-white">Tambah User</Button>
+      {/* Tombol Tambah User */}
+      <button type="button" className="ml-auto bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium py-2 px-4 rounded-md transition">
+        Tambah User
+      </button>
     </div>
   );
 }

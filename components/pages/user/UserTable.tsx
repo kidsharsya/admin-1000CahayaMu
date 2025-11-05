@@ -1,4 +1,3 @@
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { UserRow } from './UserRow';
 import { User } from 'lucide-react';
 import { UserData } from '@/data/userData';
@@ -12,7 +11,7 @@ export function UserTable() {
       </div>
       <p className="text-sm text-gray-500 mb-4">Menampilkan {UserData.length} dari seluruh data pengguna</p>
 
-      <ScrollArea className="w-full">
+      <div className="w-full">
         <table className="w-full text-sm">
           <thead className="text-gray-500 text-left border-b">
             <tr>
@@ -31,7 +30,7 @@ export function UserTable() {
             ))}
           </tbody>
         </table>
-      </ScrollArea>
+      </div>
     </div>
   );
 }
