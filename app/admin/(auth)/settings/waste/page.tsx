@@ -1,7 +1,5 @@
-export default function SettingWaste() {
-  return (
-    <div>
-      <h1>Setting Master Data Sampah</h1>
-    </div>
-  );
+import { WasteContent } from '@/components/pages/waste/WasteContent';
+
+export default function WasteSetting() {
+  return <WasteContent />;
 }

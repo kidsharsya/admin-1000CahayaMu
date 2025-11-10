@@ -1,7 +1,5 @@
-export default function SettingFood() {
-  return (
-    <div>
-      <h1>Setting Master Data Makanan</h1>
-    </div>
-  );
+import { FoodContent } from '@/components/pages/food/FoodContent';
+
+export default function FoodSetting() {
+  return <FoodContent />;
 }

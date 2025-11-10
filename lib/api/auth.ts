@@ -1,6 +1,6 @@
 export async function loginAdmin(email: string, password: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/auth/login`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -20,10 +20,6 @@ export async function loginAdmin(email: string, password: string) {
     // ✅ Simpan token dan status admin di localStorage (opsional, untuk client)
     localStorage.setItem('access_token', token);
     localStorage.setItem('is_admin', JSON.stringify(isAdmin));
-
-    // ✅ Simpan juga di cookies agar middleware (server) bisa baca
-    document.cookie = `access_token=${token}; path=/;`;
-    document.cookie = `is_admin=${isAdmin}; path=/;`;
 
     return data;
   } catch (err: unknown) {

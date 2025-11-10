@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, Database, Map, Users, Settings, ChevronDown, ChevronRight, Car, Zap, Trash2, Utensils } from 'lucide-react';
+import { BarChart3, Database, Map, Users, Settings, ChevronDown, ChevronRight, Car, Zap, Trash2, Utensils, Medal, Puzzle } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
@@ -35,30 +35,12 @@ const menuItems = [
     label: 'Pengaturan',
     icon: Settings,
     children: [
-      {
-        id: 'transportation',
-        label: 'Transportasi',
-        icon: Car,
-        path: '/admin/settings/transportation',
-      },
-      {
-        id: 'electricity',
-        label: 'Listrik',
-        icon: Zap,
-        path: '/admin/settings/electricity',
-      },
-      {
-        id: 'waste',
-        label: 'Sampah',
-        icon: Trash2,
-        path: '/admin/settings/waste',
-      },
-      {
-        id: 'food',
-        label: 'Makanan',
-        icon: Utensils,
-        path: '/admin/settings/food',
-      },
+      { id: 'transportation', label: 'Transportasi', icon: Car, path: '/admin/settings/transportation' },
+      { id: 'electricity', label: 'Listrik', icon: Zap, path: '/admin/settings/electricity' },
+      { id: 'waste', label: 'Sampah', icon: Trash2, path: '/admin/settings/waste' },
+      { id: 'food', label: 'Makanan', icon: Utensils, path: '/admin/settings/food' },
+      { id: 'gamification', label: 'Gamifikasi', icon: Medal, path: '/admin/settings/gamification' },
+      { id: 'other', label: 'Lainnya', icon: Puzzle, path: '/admin/settings/other' },
     ],
   },
 ];
@@ -72,7 +54,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="w-64 bg-slate-900 text-white min-h-screen flex flex-col">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-slate-900 text-white flex flex-col shadow-lg z-50">
       {/* Logo Section */}
       <div className="px-6 py-5 border-b border-slate-700">
         <div className="flex items-center space-x-3">
@@ -86,21 +68,22 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation Menu */}
-      <nav className="flex-1 px-4 py-6">
+      {/* Scrollable Menu */}
+      <nav className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-slate-900">
         <ul className="space-y-2">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = pathname === item.path;
 
-            // Jika item punya children → dropdown
             if (item.children) {
               const isOpen = openDropdown === item.id;
               return (
                 <li key={item.id}>
                   <button
                     onClick={() => toggleDropdown(item.id)}
-                    className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-all duration-200 ${isOpen ? 'text-slate-300' : 'text-slate-300 hover:bg-slate-800 hover:text-emerald-400'}`}
+                    className={`flex items-center justify-between w-full px-4 py-3 rounded-lg transition-all duration-200 ${
+                      isOpen ? 'text-slate-300 hover:bg-slate-800 hover:text-emerald-400' : 'text-slate-300 hover:bg-slate-800 hover:text-emerald-400'
+                    }`}
                   >
                     <div className="flex items-center space-x-3">
                       <Icon className="w-5 h-5 text-slate-400" />
@@ -133,7 +116,6 @@ export default function Sidebar() {
               );
             }
 
-            // Menu utama tanpa dropdown
             return (
               <li key={item.id}>
                 <Link
@@ -152,9 +134,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-slate-700">
-        <div className="text-center text-xs text-slate-500">© 2024 1000CahayaMu</div>
-      </div>
+      <div className="p-4 border-t border-slate-700 text-center text-xs text-slate-500">© 2024 1000CahayaMu</div>
     </aside>
   );
 }

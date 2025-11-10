@@ -32,7 +32,7 @@ export default function Header({ title, userName = 'Admin CahayaMu' }: HeaderAdm
   }, []);
 
   return (
-    <header className="bg-white border-b border-slate-200 px-6 py-4">
+    <header className="fixed top-0 left-64 right-0 z-40 bg-white border-b border-slate-200 px-6 py-4 shadow-sm">
       <div className="flex items-center justify-between">
         {/* Judul halaman */}
         <div>

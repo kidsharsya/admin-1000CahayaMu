@@ -25,7 +25,7 @@ export function EmissionRow({ name, type, emission, emission_avg }: EmissionReco
 
       {/* Aksi */}
       <td>
-        <button type="button" className="bg-white border border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white text-xs px-3 py-2 rounded-md transition">
+        <button type="button" className="bg-emerald-500 text-white hover:bg-emerald-600 hover:text-white text-xs px-3 py-2 rounded-md transition">
           Lihat Detail
         </button>
       </td>

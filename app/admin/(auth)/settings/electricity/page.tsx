@@ -1,7 +1,5 @@
-export default function SettingElectricity() {
-  return (
-    <div>
-      <h1>Setting Master Data Listrik</h1>
-    </div>
-  );
+import { ElectricityContent } from '@/components/pages/electricity/ElectricityContent';
+
+export default function ElectricitySetting() {
+  return <ElectricityContent />;
 }

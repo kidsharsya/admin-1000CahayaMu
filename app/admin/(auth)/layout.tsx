@@ -18,6 +18,8 @@ const pathTitles: Record<string, string> = {
   '/admin/settings/electricity': 'Pengaturan Listrik',
   '/admin/settings/waste': 'Pengaturan Sampah',
   '/admin/settings/food': 'Pengaturan Makanan',
+  '/admin/settings/gamification': 'Pengaturan Gamifikasi',
+  '/admin/settings/other': 'Pengaturan Lainnya',
 };
 
 export default function Layout({ children }: LayoutProps) {
@@ -27,9 +29,10 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      {/* Area konten utama */}
+      <div className="flex-1 flex flex-col ml-64">
         <Header title={title} />
-        <main className="p-4 flex-1">{children}</main>
+        <main className="flex-1 p-6 mt-20 bg-gray-50">{children}</main>
       </div>
     </div>
   );

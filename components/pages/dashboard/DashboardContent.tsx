@@ -4,11 +4,12 @@ import { StatCard } from './StatCard';
 import { TrendEmisiLineChart } from './LineChartEmisi';
 import { DistribusiDonutChart } from './DonutChartEmisi';
 import { TopProvinsiCard } from './TopProvinsiChart';
-import { TrendEmisiBarChart } from './BarChartEmisi';
+import { DashboardFilter } from './DashboardFilter';
 
 export function DashboardContent() {
   return (
     <div className="space-y-4">
+      <DashboardFilter />
       {/* Row 1: Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard title="Total Emisi Karbon" value="2.847.593" unit="CO2e (ton)" change="+12.3% dari bulan lalu" changeType="up" />
@@ -19,24 +20,12 @@ export function DashboardContent() {
 
       {/* Row 2: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="p-4 bg-white rounded-2xl shadow-sm">
-          <h3 className="font-semibold text-gray-700 mb-2">Tren Emisi Karbon Nasional</h3>
-          <p className="text-sm text-gray-500 mb-4">Per bulan Per Kategori (2025)</p>
-          <TrendEmisiLineChart />
-        </div>
-
-        <div className="p-4 bg-white rounded-2xl shadow-sm">
-          <h3 className="font-semibold text-gray-700 mb-2">Distribusi per Kategori</h3>
-          <p className="text-sm text-gray-500 mb-4">Persentase Kontribusi</p>
-          <DistribusiDonutChart />
-        </div>
+        <TopProvinsiCard />
+        <DistribusiDonutChart />
       </div>
 
       {/* Row 3: Bottom Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <TopProvinsiCard />
-        <TrendEmisiBarChart />
-      </div>
+      <TrendEmisiLineChart />
     </div>
   );
 }

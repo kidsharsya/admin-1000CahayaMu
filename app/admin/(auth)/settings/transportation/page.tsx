@@ -1,7 +1,5 @@
-export default function SettingTransportation() {
-  return (
-    <div>
-      <h1>Setting Master Data Transportation</h1>
-    </div>
-  );
+import { TransportationContent } from '@/components/pages/transportation/TransportationContent';
+
+export default function TransportationSetting() {
+  return <TransportationContent />;
 }
