@@ -2,6 +2,7 @@ import { EmissionRecord } from '@/types/emission';
 
 export const emissionUser: EmissionRecord[] = [
   {
+    id: '1',
     name: 'Ahmad Rizki',
     type: 'Individu',
     emission: '220.05',
@@ -10,6 +11,7 @@ export const emissionUser: EmissionRecord[] = [
     date: '15/11/2025',
   },
   {
+    id: '2',
     name: 'SD Muhammadiyah',
     type: 'Lembaga',
     emission: '500.50',
@@ -18,6 +20,7 @@ export const emissionUser: EmissionRecord[] = [
     date: '15/11/2025',
   },
   {
+    id: '3',
     name: 'Gemilang Tirto',
     type: 'Individu',
     emission: '229.78',
@@ -26,6 +29,7 @@ export const emissionUser: EmissionRecord[] = [
     date: '15/11/2025',
   },
   {
+    id: '4',
     name: 'SMP Muhammadiyah',
     type: 'Lembaga',
     emission: '780.90',
@@ -34,6 +38,7 @@ export const emissionUser: EmissionRecord[] = [
     date: '15/11/2025',
   },
   {
+    id: '5',
     name: 'Taufan Ali',
     type: 'Individu',
     emission: '198.59',

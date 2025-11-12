@@ -19,6 +19,7 @@ export interface UserTypes {
   district: string;
   sub_district: string;
   active: boolean;
+  created_at?: string;
   individual_profile?: IndividualProfile;
   institution_profile?: InstitutionProfile;
 }

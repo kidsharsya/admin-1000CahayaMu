@@ -3,7 +3,7 @@ import { UserTypes } from '@/types/user';
 export const UserData: UserTypes[] = [
   {
     id: '1',
-    name: 'Ahmad Rizki',
+    individual_profile: { full_name: 'Ahmad Rizki', gender: 'male' },
     email: 'ahmadrizky@gmail.com',
     no_hp: '081234567890',
     user_type: 'Individu',
@@ -13,7 +13,7 @@ export const UserData: UserTypes[] = [
   },
   {
     id: '2',
-    name: 'SD Muhammadiyah 1 Prambanan',
+    institution_profile: { name: 'SD Muhammadiyah 1 Prambanan' },
     email: 'sdmuhammadiyah@gmail.com',
     no_hp: '081234567890',
     user_type: 'Lembaga',
@@ -23,7 +23,7 @@ export const UserData: UserTypes[] = [
   },
   {
     id: '3',
-    name: 'Gemilang Tirto',
+    individual_profile: { full_name: 'Gemilang Tirto', gender: 'male' },
     email: 'gemilangtirto@gmail.com',
     no_hp: '081234567890',
     user_type: 'Individu',
@@ -33,7 +33,7 @@ export const UserData: UserTypes[] = [
   },
   {
     id: '4',
-    name: 'SMP Muhammadiyah',
+    institution_profile: { name: 'SMP Muhammadiyah' },
     email: 'smpmuhammadiyah@gmail.com',
     no_hp: '081234567890',
     user_type: 'Lembaga',
@@ -43,7 +43,7 @@ export const UserData: UserTypes[] = [
   },
   {
     id: '5',
-    name: 'Taufan Ali',
+    individual_profile: { full_name: 'Taufan Ali', gender: 'male' },
     email: 'taufanali@gmail.com',
     no_hp: '081234567890',
     user_type: 'Individu',

@@ -24,7 +24,10 @@ const pathTitles: Record<string, string> = {
 
 export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
-  const title = pathTitles[pathname] || 'Dashboard';
+  let title = pathTitles[pathname] || 'Dashboard';
+  if (pathname?.startsWith('/admin/emissions/detail/')) {
+    title = 'Detail Emisi Pengguna';
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50">
