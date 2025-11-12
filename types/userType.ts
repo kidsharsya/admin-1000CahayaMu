@@ -30,3 +30,10 @@ export interface UserWithRegion extends UserTypes {
   district_name: string;
   sub_district_name: string;
 }
+
+export interface UserFilters {
+  user_type?: 'individu' | 'lembaga' | 'semua';
+  name?: string;
+  page?: number;
+  per_page?: number;
+}

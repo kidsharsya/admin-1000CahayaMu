@@ -1,4 +1,4 @@
-import { UserTypes, UserWithRegion } from '@/types/userType';
+import { UserTypes, UserWithRegion, UserFilters } from '@/types/userType';
 import { getProvinceName, getRegencyName, getDistrictName, getVillageName } from './region';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -9,12 +9,9 @@ function getAuthHeader(): HeadersInit {
 }
 
 // ==============================
-// 👥 Ambil user dengan pagination
+// 👥 Ambil user dengan pagination dan filters
 // ==============================
-export async function getUserList(
-  page = 1,
-  perPage = 10
-): Promise<{
+export async function getUserList(filters: UserFilters = {}): Promise<{
   data: UserTypes[];
   pagination: {
     current_page: number;
@@ -25,7 +22,26 @@ export async function getUserList(
     has_next: boolean;
   };
 }> {
-  const res = await fetch(`${API_URL}/admin/users?page=${page}&per_page=${perPage}`, {
+  const { page = 1, per_page = 10, user_type, name } = filters;
+
+  // ✅ Build query params
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(per_page),
+  });
+
+  if (user_type && user_type !== 'semua') {
+    params.set('user_type', user_type);
+  }
+
+  if (name && name.trim()) {
+    params.set('name', name.trim());
+  }
+
+  const url = `${API_URL}/admin/users?${params.toString()}`;
+  console.log('🔍 Fetching users:', url); // Debug
+
+  const res = await fetch(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

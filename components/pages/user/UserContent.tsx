@@ -5,10 +5,15 @@ import { UserTable } from './UserTable';
 import { StatCardUser } from './StatCard';
 import { getDashboardOverview } from '@/lib/api/dashboardOverview';
 import type { DashboardOverview } from '@/types/dashboardOverview';
+import type { UserFilters } from '@/types/userType';
 
 export function UserContent() {
   const [stats, setStats] = useState<DashboardOverview | null>(null);
   const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState<UserFilters>({
+    user_type: 'semua',
+    name: '',
+  });
 
   useEffect(() => {
     let mounted = true;
@@ -30,6 +35,13 @@ export function UserContent() {
     };
   }, []);
 
+  const handleFilterChange = (newFilters: Partial<UserFilters>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+    }));
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -39,8 +51,8 @@ export function UserContent() {
       </div>
 
       <div className="bg-white border rounded-xl p-4 space-y-4 shadow-sm">
-        <UserFilter />
-        <UserTable />
+        <UserFilter onFilterChange={handleFilterChange} initialFilters={filters} />
+        <UserTable filters={filters} />
       </div>
     </div>
   );
