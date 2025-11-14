@@ -1,4 +1,4 @@
-import type { UserEmission, UserEmissionPagination, UserEmissionFilters } from '@/types/userEmissionType';
+import type { UserEmission, UserEmissionPagination, UserEmissionFilters, EmissionOverviewItem } from '@/types/userEmissionType';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -96,4 +96,37 @@ export async function getUserEmissionById(userId: string, filters?: { year?: num
 
   const userEmission = json.data.find((u: UserEmission) => u.user_id === userId);
   return userEmission || null;
+}
+
+/**
+ * ✅ Fetch emission overview dengan filter year & month
+ */
+export async function getEmissionOverview(filters?: { year?: number | 'semua'; month?: number | 'semua' }): Promise<EmissionOverviewItem[]> {
+  const params = new URLSearchParams();
+
+  // ✅ Tambahkan filter year & month
+  if (filters?.year && filters.year !== 'semua') {
+    params.set('year', String(filters.year));
+  }
+
+  if (filters?.month && filters.month !== 'semua') {
+    params.set('month', String(filters.month));
+  }
+
+  const res = await fetch(`${API_URL}/admin/dashboard/emissions/overview?${params.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeader(),
+    },
+    cache: 'no-store',
+  });
+
+  const json = await res.json();
+
+  if (!res.ok || !json.meta?.success) {
+    throw new Error(json.meta?.message || 'Failed to fetch emission overview');
+  }
+
+  return json.data;
 }

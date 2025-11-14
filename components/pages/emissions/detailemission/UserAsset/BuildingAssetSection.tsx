@@ -6,7 +6,6 @@ import type { BuildingAsset } from '@/types/buildingAssetType';
 import type { ElectricityEmissionTarifWithCategoryName } from '@/types/electricityEmissionTarif';
 import { getBuildingAssetsByUserId } from '@/lib/api/userAsset';
 import { getElectricityEmissionTariffsWithCategoryName } from '@/lib/api/electricityEmissionTarif';
-import { getElectricityCategories } from '@/lib/api/electricityCategory';
 import { getProvinceName, getRegencyName, getDistrictName, getVillageName } from '@/lib/api/region';
 
 interface BuildingAssetSectionProps {
@@ -47,31 +46,36 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
         setLoading(true);
         setError(null);
 
-        const [assetList, tariffsResponse, categories] = await Promise.all([getBuildingAssetsByUserId(userId), getElectricityEmissionTariffsWithCategoryName(), getElectricityCategories()]);
+        // ✅ Cukup fetch 2 saja (bukan 3), tariffs sudah include category_name
+        const [assetList, tariffsResponse] = await Promise.all([
+          getBuildingAssetsByUserId(userId),
+          getElectricityEmissionTariffsWithCategoryName(1, 1000), // ✅ Fetch semua tariff sekaligus
+        ]);
 
         if (!mounted) return;
 
-        const categoryMap = new Map(categories.map((c) => [c.id, c.category_name]));
+        // ✅ Build tariff map (sudah ada category_name dari API)
         const tariffMapLocal = new Map<string, ElectricityEmissionTarifWithCategoryName>();
         (tariffsResponse?.data ?? []).forEach((t) => {
-          tariffMapLocal.set(t.id, { ...t, category_name: categoryMap.get(t.category_id) });
+          tariffMapLocal.set(t.id, t); // ✅ Langsung set, sudah ada category_name
         });
 
+        // ✅ Enrich building assets dengan alamat lengkap
         const enriched: EnrichedBuildingAsset[] = await Promise.all(
           assetList.map(async (a) => {
             const addressCore = a.full_address || a.address_label || '-';
             try {
-              // 🧩 Normalisasi kode biar cocok sama format API wilayah
               const provinceCode = a.province_code.startsWith('id') ? a.province_code : `id${a.province_code}`;
               const regencyCode = a.regency_code.startsWith('id') ? a.regency_code : `id${a.regency_code}`;
               const districtCode = a.district_code.startsWith('id') ? a.district_code : `id${a.district_code}`;
               const villageCode = a.village_code.startsWith('id') ? a.village_code : `id${a.village_code}`;
 
-              // 🔍 Panggil API wilayah sesuai urutan dependensinya
-              const provinceName = await getProvinceName(provinceCode);
-              const regencyName = await getRegencyName(regencyCode, provinceCode);
-              const districtName = await getDistrictName(districtCode, regencyCode);
-              const villageName = await getVillageName(villageCode, districtCode);
+              const [provinceName, regencyName, districtName, villageName] = await Promise.all([
+                getProvinceName(provinceCode),
+                getRegencyName(regencyCode, provinceCode),
+                getDistrictName(districtCode, regencyCode),
+                getVillageName(villageCode, districtCode),
+              ]);
 
               const postal = a.postal_code ? ` ${a.postal_code}` : '';
               const longAddress = [addressCore, villageName, districtName, regencyName, provinceName].filter(Boolean).join(', ') + postal;
@@ -99,10 +103,8 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
 
   const cards: CardData[] = useMemo(() => {
     return assets.map((a) => {
-      // Ambil info tarif berdasarkan ID (type-safe)
       const tariff = a.electricity_tariff_id ? tariffMap.get(a.electricity_tariff_id) : undefined;
-
-      const area = typeof a.metadata?.area_sqm === 'number' ? `${a.metadata.area_sqm} m²` : '—';
+      const area = typeof a.metadata?.area_sqm === 'number' ? `${a.metadata.area_sqm} m²` : '-';
 
       const equipments = a.metadata?.electronics_inventory
         ? Object.entries(a.metadata.electronics_inventory).map(([name, qty]) => ({
@@ -114,7 +116,7 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
       return {
         key: a.id,
         name: a.name,
-        electricityType: tariff?.category_name ?? '—', // <- pakai tariffMap
+        electricityType: tariff?.category_name ?? '—', // ✅ Sudah ada dari tariffMap
         electricityPower: a.power_capacity_label ?? '—',
         area,
         address: a.__long_address,

@@ -10,7 +10,8 @@ function getAuthHeader(): Record<string, string> {
 
 function resolveNextUrl(next: string | null | undefined): string | null {
   if (!next) return null;
-  if (/^https?:\/\//i.test(next)) return next; // absolute
+  if (/^https?:\/\//i.test(next)) return next; // absolute URL
+  if (next.startsWith('/api/v1/')) return `${API_URL}${next.replace('/api/v1', '')}`; // ✅ Fix: remove /api/v1 prefix
   if (next.startsWith('/')) return `${API_URL}${next}`; // relative with slash
   return `${API_URL}/${next}`; // relative no slash
 }
@@ -27,8 +28,12 @@ async function parseJsonSafe<T>(res: Response): Promise<T> {
 async function fetchAllPages<TResp extends { meta: { success: boolean; message?: string }; data: TItem[]; links?: { next?: string | null } }, TItem>(firstUrl: string): Promise<TItem[]> {
   const all: TItem[] = [];
   let nextUrl: string | null = firstUrl;
+  let iteration = 0;
+  const maxIterations = 100; // ✅ Prevent infinite loop
 
-  while (nextUrl) {
+  while (nextUrl && iteration < maxIterations) {
+    console.log(`🔍 Fetching page ${iteration + 1}:`, nextUrl);
+
     const res = await fetch(nextUrl, {
       method: 'GET',
       headers: {
@@ -39,19 +44,29 @@ async function fetchAllPages<TResp extends { meta: { success: boolean; message?:
     });
 
     const json = await parseJsonSafe<TResp>(res);
+
     if (!res.ok || json.meta?.success === false) {
       throw new Error(json.meta?.message || `Failed fetching: ${nextUrl}`);
     }
 
     all.push(...(json.data ?? []));
+    console.log(`📦 Fetched ${json.data?.length || 0} items, total: ${all.length}`);
+
+    // ✅ Resolve next URL properly
     nextUrl = resolveNextUrl(json.links?.next);
+    iteration++;
   }
 
+  if (iteration >= maxIterations) {
+    console.warn('⚠️ Max iterations reached, stopping pagination');
+  }
+
+  console.log(`✅ Total items fetched: ${all.length}`);
   return all;
 }
 
 /* =========================
-   🏢 BUILDING ASSETS (type-safe)
+   🏢 BUILDING ASSETS
    ========================= */
 
 export async function getAllBuildingAssets(perPage = 100): Promise<BuildingAsset[]> {
@@ -60,8 +75,11 @@ export async function getAllBuildingAssets(perPage = 100): Promise<BuildingAsset
 }
 
 export async function getBuildingAssetsByUserId(userId: string, perPage = 100): Promise<BuildingAsset[]> {
+  // ✅ Filter di client-side setelah fetch semua data
   const all = await getAllBuildingAssets(perPage);
-  return all.filter((a) => a.user_id === userId);
+  const filtered = all.filter((a) => a.user_id === userId);
+  console.log(`🏢 Building assets for user ${userId}:`, filtered.length);
+  return filtered;
 }
 
 export async function getBuildingAssetById(id: string): Promise<BuildingAsset | null> {
@@ -70,7 +88,7 @@ export async function getBuildingAssetById(id: string): Promise<BuildingAsset | 
 }
 
 /* =========================
-   🚗 VEHICLE ASSETS (type-safe)
+   🚗 VEHICLE ASSETS
    ========================= */
 
 export async function getAllVehicleAssets(perPage = 100): Promise<VehicleAsset[]> {
@@ -79,8 +97,11 @@ export async function getAllVehicleAssets(perPage = 100): Promise<VehicleAsset[]
 }
 
 export async function getVehicleAssetsByUserId(userId: string, perPage = 100): Promise<VehicleAsset[]> {
+  // ✅ Filter di client-side setelah fetch semua data
   const all = await getAllVehicleAssets(perPage);
-  return all.filter((a) => a.user_id === userId);
+  const filtered = all.filter((a) => a.user_id === userId);
+  console.log(`🚗 Vehicle assets for user ${userId}:`, filtered.length);
+  return filtered;
 }
 
 export async function getVehicleAssetById(id: string): Promise<VehicleAsset | null> {

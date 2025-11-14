@@ -1,6 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { getProvinces } from '@/lib/api/region';
 import type { DashboardFilters } from '@/types/dashboardType';
 
 interface DashboardFilterProps {
@@ -10,47 +11,75 @@ interface DashboardFilterProps {
 export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
   const now = new Date();
   const currentYear = now.getFullYear();
+  const MAX_PROVINCES = 5;
 
-  const [userType, setUserType] = useState<'semua' | 'individu' | 'lembaga'>('semua');
+  // ✅ Tetap ada state tapi tidak tampilkan di UI
+  // const [userType, setUserType] = useState<'semua' | 'individu' | 'lembaga'>('semua');
   const [month, setMonth] = useState<number | 'semua'>('semua');
   const [year, setYear] = useState<number | 'semua'>(currentYear);
   const [selectedProvinces, setSelectedProvinces] = useState<string[]>([]);
   const [isProvinceOpen, setIsProvinceOpen] = useState(false);
 
-  const provinces = [
-    { id: 'id31', name: 'DKI Jakarta' },
-    { id: 'id32', name: 'Jawa Barat' },
-    { id: 'id33', name: 'Jawa Tengah' },
-    { id: 'id34', name: 'Daerah Istimewa Yogyakarta' },
-    { id: 'id35', name: 'Jawa Timur' },
-  ];
+  const [provinces, setProvinces] = useState<Array<{ id: string; name: string }>>([]);
+  const [loadingProvinces, setLoadingProvinces] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        setLoadingProvinces(true);
+        const provincesData = await getProvinces();
+        const provinceList = Object.entries(provincesData).map(([code, name]) => ({
+          id: code,
+          name: name,
+        }));
+        setProvinces(provinceList);
+      } catch (error) {
+        console.error('Failed to fetch provinces:', error);
+      } finally {
+        setLoadingProvinces(false);
+      }
+    })();
+  }, []);
 
   const toggleProvince = (provinceId: string) => {
-    setSelectedProvinces((prev) => (prev.includes(provinceId) ? prev.filter((p) => p !== provinceId) : [...prev, provinceId]));
+    setSelectedProvinces((prev) => {
+      const isSelected = prev.includes(provinceId);
+
+      // ✅ Jika sudah dipilih, uncheck (remove dari array)
+      if (isSelected) {
+        return prev.filter((p) => p !== provinceId);
+      }
+
+      // ✅ Jika belum dipilih, cek apakah sudah mencapai limit
+      if (prev.length >= MAX_PROVINCES) {
+        alert(`Maksimal ${MAX_PROVINCES} provinsi yang dapat dipilih`);
+        return prev; // Tidak tambah
+      }
+
+      // ✅ Tambah ke array
+      return [...prev, provinceId];
+    });
   };
 
   const handleApply = () => {
     const filters: DashboardFilters = {
-      user_type: userType,
+      // ✅ Tidak kirim user_type ke API (atau kirim undefined)
+      // user_type: userType,
       month: month,
       year: year,
-      provinces: selectedProvinces,
+      provinces: selectedProvinces.length > 0 ? selectedProvinces : undefined,
     };
     onFilterChange?.(filters);
   };
 
   return (
     <div className="flex flex-wrap items-center gap-3 w-full relative">
-      {/* Jenis Pengguna */}
-      <select
-        value={userType}
-        onChange={(e) => setUserType(e.target.value as 'semua' | 'individu' | 'lembaga')}
-        className="w-[180px] border border-gray-300 rounded-md py-2 px-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white"
-      >
+      {/* ✅ HIDE filter Jenis Pengguna */}
+      {/* <select value={userType} onChange={(e) => setUserType(e.target.value as 'semua' | 'individu' | 'lembaga')} className="w-[180px] border border-gray-300 rounded-md py-2 px-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
         <option value="semua">Semua Pengguna</option>
         <option value="individu">Individu</option>
         <option value="lembaga">Lembaga</option>
-      </select>
+      </select> */}
 
       {/* Bulan */}
       <select
@@ -84,21 +113,44 @@ export function DashboardFilter({ onFilterChange }: DashboardFilterProps) {
         <option value="2026">2026</option>
       </select>
 
-      {/* Provinsi multi-select custom */}
+      {/* Provinsi multi-select - ✅ Max 5 */}
       <div className="relative w-[300px]">
         <button type="button" onClick={() => setIsProvinceOpen((p) => !p)} className="w-full flex justify-between items-center border border-gray-300 rounded-md py-2 px-3 text-sm bg-white focus:ring-2 focus:ring-emerald-500">
-          <span className="truncate">{selectedProvinces.length > 0 ? `${selectedProvinces.length} provinsi dipilih` : 'Pilih Provinsi'}</span>
+          <span className="truncate">{selectedProvinces.length > 0 ? `${selectedProvinces.length}/${MAX_PROVINCES} provinsi dipilih` : loadingProvinces ? 'Memuat provinsi...' : `Pilih Provinsi (Max ${MAX_PROVINCES})`}</span>
           <ChevronDown className={`w-4 h-4 text-black transition-transform ${isProvinceOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {isProvinceOpen && (
           <div className="absolute z-20 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-48 overflow-y-auto">
-            {provinces.map((province) => (
-              <label key={province.id} className="flex items-center px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm">
-                <input type="checkbox" checked={selectedProvinces.includes(province.id)} onChange={() => toggleProvince(province.id)} className="mr-2 rounded text-emerald-600 focus:ring-emerald-500" />
-                {province.name}
-              </label>
-            ))}
+            {loadingProvinces ? (
+              <div className="px-3 py-2 text-sm text-gray-500">Memuat provinsi...</div>
+            ) : provinces.length > 0 ? (
+              <>
+                {/* ✅ Info helper text */}
+                <div className="sticky top-0 bg-gray-50 px-3 py-2 text-xs text-gray-600 border-b">
+                  Maksimal {MAX_PROVINCES} provinsi ({selectedProvinces.length} dipilih)
+                </div>
+
+                {provinces.map((province) => {
+                  const isSelected = selectedProvinces.includes(province.id);
+                  const isDisabled = !isSelected && selectedProvinces.length >= MAX_PROVINCES;
+                  return (
+                    <label key={province.id} className={`flex items-center px-3 py-2 text-sm ${isDisabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'hover:bg-gray-50 cursor-pointer'}`}>
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleProvince(province.id)}
+                        disabled={isDisabled}
+                        className="mr-2 rounded text-emerald-600 focus:ring-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                      {province.name}
+                    </label>
+                  );
+                })}
+              </>
+            ) : (
+              <div className="px-3 py-2 text-sm text-gray-500">Tidak ada data provinsi</div>
+            )}
           </div>
         )}
       </div>

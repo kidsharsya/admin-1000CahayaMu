@@ -47,3 +47,14 @@ export interface UserEmissionFilters {
   page?: number;
   per_page?: number;
 }
+
+export interface EmissionOverviewItem {
+  category: string;
+  comparison_percent: number;
+  status: 'increase' | 'decrease' | 'same';
+  total_tons: number;
+}
+
+export interface EmissionOverview {
+  data: EmissionOverviewItem[];
+}

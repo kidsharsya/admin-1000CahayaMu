@@ -29,8 +29,11 @@ export async function getDashboardMainOverview(filters: DashboardFilters = {}): 
     params.set('user_type', user_type);
   }
 
+  // ✅ Update: Kirim multiple provinces dengan format ?province=id33&province=id34
   if (provinces && provinces.length > 0) {
-    params.set('provinces', provinces.join(','));
+    provinces.forEach((provinceId) => {
+      params.append('province', provinceId);
+    });
   }
 
   const url = `${API_URL}/admin/dashboard/main/overview${params.toString() ? `?${params.toString()}` : ''}`;
