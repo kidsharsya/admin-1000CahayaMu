@@ -42,9 +42,21 @@ export function VehicleAssetSection({ userId }: VehicleAssetSectionProps) {
     };
   }, [userId]);
 
-  if (loading) return <div className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm animate-pulse">Memuat aset kendaraan...</div>;
+  if (loading) {
+    return (
+      <div className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+        <div className="flex items-center gap-2 mb-4">
+          <Car className="w-5 h-5 text-gray-700" />
+          <h2 className="font-semibold text-gray-800">Aset Kendaraan</h2>
+        </div>
+        <div className="h-24 bg-gray-100 animate-pulse rounded-md" />
+      </div>
+    );
+  }
 
-  if (error) return <div className="border border-yellow-200 bg-yellow-50 text-yellow-700 rounded-xl p-4 text-sm">{error}</div>;
+  if (error) {
+    return <div className="border border-red-200 rounded-xl p-4 bg-red-50 text-red-700">{error}</div>;
+  }
 
   return (
     <div className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">

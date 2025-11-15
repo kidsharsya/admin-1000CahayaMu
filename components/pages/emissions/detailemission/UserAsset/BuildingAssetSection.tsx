@@ -46,7 +46,6 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
         setLoading(true);
         setError(null);
 
-        // ✅ Cukup fetch 2 saja (bukan 3), tariffs sudah include category_name
         const [assetList, tariffsResponse] = await Promise.all([
           getBuildingAssetsByUserId(userId),
           getElectricityEmissionTariffsWithCategoryName(1, 1000), // ✅ Fetch semua tariff sekaligus
@@ -54,10 +53,9 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
 
         if (!mounted) return;
 
-        // ✅ Build tariff map (sudah ada category_name dari API)
         const tariffMapLocal = new Map<string, ElectricityEmissionTarifWithCategoryName>();
         (tariffsResponse?.data ?? []).forEach((t) => {
-          tariffMapLocal.set(t.id, t); // ✅ Langsung set, sudah ada category_name
+          tariffMapLocal.set(t.id, t);
         });
 
         // ✅ Enrich building assets dengan alamat lengkap
@@ -116,8 +114,8 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
       return {
         key: a.id,
         name: a.name,
-        electricityType: tariff?.category_name ?? '—', // ✅ Sudah ada dari tariffMap
-        electricityPower: a.power_capacity_label ?? '—',
+        electricityType: tariff?.category_name ?? '-', // ✅ Sudah ada dari tariffMap
+        electricityPower: a.power_capacity_label ?? '-',
         area,
         address: a.__long_address,
         equipments,
