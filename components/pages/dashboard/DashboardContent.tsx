@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { Filter } from 'lucide-react';
+import { Modal } from '@/components/ui/modal';
 import { StatCard } from './StatCard';
 import { TrendEmisiLineChart } from './LineChartEmisi';
 import { DistribusiDonutChart } from './DonutChartEmisi';
@@ -12,6 +14,7 @@ import type { DashboardMainOverview, DashboardFilters } from '@/types/dashboardT
 export function DashboardContent() {
   const [data, setData] = useState<DashboardMainOverview | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false); // ✅ State modal
   const [filters, setFilters] = useState<DashboardFilters>({
     year: new Date().getFullYear(),
     month: 'semua',
@@ -19,7 +22,6 @@ export function DashboardContent() {
     provinces: [],
   });
 
-  // Fetch data saat component mount atau filters berubah
   useEffect(() => {
     let mounted = true;
 
@@ -44,7 +46,6 @@ export function DashboardContent() {
     setFilters(newFilters);
   };
 
-  // Helper functions untuk format data
   const formatComparison = (comparison: number, status: string) => {
     if (status === 'same') return 'Tidak ada perubahan';
     const sign = status === 'increase' ? '+' : '-';
@@ -57,9 +58,33 @@ export function DashboardContent() {
     return undefined;
   };
 
+  // ✅ Format active filters untuk display
+  const getActiveFiltersText = () => {
+    const parts: string[] = [];
+    if (filters.year && filters.year !== 'semua') parts.push(`Tahun ${filters.year}`);
+    if (filters.month && filters.month !== 'semua') {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      parts.push(monthNames[filters.month - 1]);
+    }
+    if (filters.provinces && filters.provinces.length > 0) {
+      parts.push(`${filters.provinces.length} provinsi`);
+    }
+    return parts.length > 0 ? parts.join(' • ') : 'Semua Data';
+  };
+
   return (
     <div className="space-y-4">
-      <DashboardFilter onFilterChange={handleFilterChange} />
+      {/* ✅ Filter Button */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h1 className="text-gray-600">Filter:</h1>
+          <span className="text-sm text-gray-500">({getActiveFiltersText()})</span>
+        </div>
+        <button onClick={() => setIsFilterModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-md transition-colors">
+          <Filter className="w-4 h-4" />
+          Filter Data
+        </button>
+      </div>
 
       {/* Row 1: Stat Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -101,8 +126,13 @@ export function DashboardContent() {
         <DistribusiDonutChart data={data?.category_distribution || []} loading={loading} />
       </div>
 
-      {/* Row 3: Line Chart - ✅ Pass year filter */}
+      {/* Row 3: Line Chart */}
       <TrendEmisiLineChart year={filters.year} />
+
+      {/* ✅ Filter Modal */}
+      <Modal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} title="Filter Dashboard">
+        <DashboardFilter onFilterChange={handleFilterChange} onClose={() => setIsFilterModalOpen(false)} initialFilters={filters} />
+      </Modal>
     </div>
   );
 }

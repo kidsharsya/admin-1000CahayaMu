@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Filter } from 'lucide-react';
+import { Modal } from '@/components/ui/modal';
 import { EmissionFilter } from './EmissionFilter';
 import { EmissionTable } from './EmissionTable';
 import { StatCardEmission } from './StatCard';
@@ -17,6 +19,7 @@ export function EmissionContent() {
   const now = new Date();
   const currentYear = now.getFullYear();
 
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false); // ✅ State modal
   const [filters, setFilters] = useState<UserEmissionFilters>({
     year: currentYear,
     month: 'semua',
@@ -42,7 +45,7 @@ export function EmissionContent() {
     });
   }, [searchParams, currentYear]);
 
-  // ✅ Fetch dashboard stats (total emissions)
+  // ✅ Fetch dashboard stats
   useEffect(() => {
     let mounted = true;
 
@@ -63,7 +66,7 @@ export function EmissionContent() {
     };
   }, []);
 
-  // ✅ Fetch emission overview dengan filter
+  // ✅ Fetch emission overview
   useEffect(() => {
     let mounted = true;
 
@@ -112,12 +115,24 @@ export function EmissionContent() {
     handleFilterChange({ search });
   };
 
-  // ✅ Helper untuk cari data berdasarkan category
   const getEmissionByCategory = (category: string): EmissionOverviewItem | undefined => {
     return emissionOverview.find((item) => item.category === category);
   };
 
-  // ✅ Format data untuk StatCard
+  // ✅ Format active filters untuk display
+  const getActiveFiltersText = () => {
+    const parts: string[] = [];
+    if (filters.user_type && filters.user_type !== 'semua') {
+      parts.push(filters.user_type === 'individu' ? 'Individu' : 'Lembaga');
+    }
+    if (filters.year && filters.year !== 'semua') parts.push(`Tahun ${filters.year}`);
+    if (filters.month && filters.month !== 'semua') {
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      parts.push(monthNames[filters.month - 1]);
+    }
+    return parts.length > 0 ? parts.join(' • ') : 'Semua Data';
+  };
+
   const totalEmissionsTons = stats?.total_emissions ?? 0;
   const listrik = getEmissionByCategory('listrik');
   const transportasi = getEmissionByCategory('transportasi');
@@ -126,13 +141,22 @@ export function EmissionContent() {
 
   return (
     <div className="space-y-4">
-      <SummaryFilter key={`${filters.year}-${filters.month}-${filters.user_type}`} onFilterChange={handleFilterChange} initialFilters={filters} />
+      {/* ✅ Header dengan Filter Button */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h1 className="text-gray-600">Filter:</h1>
+          <span className="text-sm text-gray-500">({getActiveFiltersText()})</span>
+        </div>
+        <button onClick={() => setIsFilterModalOpen(true)} className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium rounded-md transition-colors">
+          <Filter className="w-4 h-4" />
+          Filter Data
+        </button>
+      </div>
 
+      {/* StatCards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        {/* Total Emisi */}
         <StatCardEmission title="Total Emisi" value={loading ? '...' : totalEmissionsTons.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} unit="ton CO₂e" />
 
-        {/* Listrik */}
         <StatCardEmission
           title="Total Emisi Listrik"
           value={overviewLoading ? '...' : (listrik?.total_tons ?? 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -141,7 +165,6 @@ export function EmissionContent() {
           changeType={listrik?.status === 'increase' ? 'up' : listrik?.status === 'decrease' ? 'down' : undefined}
         />
 
-        {/* Transportasi */}
         <StatCardEmission
           title="Total Emisi Transportasi"
           value={overviewLoading ? '...' : (transportasi?.total_tons ?? 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -150,7 +173,6 @@ export function EmissionContent() {
           changeType={transportasi?.status === 'increase' ? 'up' : transportasi?.status === 'decrease' ? 'down' : undefined}
         />
 
-        {/* Makanan */}
         <StatCardEmission
           title="Total Emisi Makanan"
           value={overviewLoading ? '...' : (makanan?.total_tons ?? 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -159,7 +181,6 @@ export function EmissionContent() {
           changeType={makanan?.status === 'increase' ? 'up' : makanan?.status === 'decrease' ? 'down' : undefined}
         />
 
-        {/* Sampah */}
         <StatCardEmission
           title="Total Emisi Sampah"
           value={overviewLoading ? '...' : (sampah?.total_tons ?? 0).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -169,10 +190,16 @@ export function EmissionContent() {
         />
       </div>
 
+      {/* Emission Table */}
       <div className="bg-white border border-gray-100 rounded-xl p-4 space-y-4 shadow-sm">
         <EmissionFilter key={filters.search || 'no-search'} onSearchChange={handleSearchChange} initialSearch={filters.search} />
         <EmissionTable filters={filters} />
       </div>
+
+      {/* ✅ Filter Modal */}
+      <Modal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} title="Filter Data Emisi">
+        <SummaryFilter onFilterChange={handleFilterChange} onClose={() => setIsFilterModalOpen(false)} initialFilters={filters} />
+      </Modal>
     </div>
   );
 }
