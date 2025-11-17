@@ -10,7 +10,7 @@ interface UserFilterProps {
 
 export function UserFilter({ onFilterChange, initialFilters }: UserFilterProps) {
   const [selectedType, setSelectedType] = useState<'semua' | 'individu' | 'lembaga'>((initialFilters?.user_type as 'semua' | 'individu' | 'lembaga') || 'semua');
-  const [searchName, setSearchName] = useState(initialFilters?.name || '');
+  const [searchName, setSearchName] = useState(initialFilters?.search || '');
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Cleanup timer saat unmount
@@ -24,7 +24,7 @@ export function UserFilter({ onFilterChange, initialFilters }: UserFilterProps) 
 
   const handleTypeChange = (type: 'semua' | 'individu' | 'lembaga') => {
     setSelectedType(type);
-    onFilterChange?.({ user_type: type, name: searchName });
+    onFilterChange?.({ user_type: type, search: searchName });
   };
 
   const handleSearchChange = (value: string) => {
@@ -37,7 +37,7 @@ export function UserFilter({ onFilterChange, initialFilters }: UserFilterProps) 
 
     // Set timer baru: fetch setelah 500ms user berhenti mengetik
     debounceTimerRef.current = setTimeout(() => {
-      onFilterChange?.({ user_type: selectedType, name: value.trim() });
+      onFilterChange?.({ user_type: selectedType, search: value.trim() });
     }, 1000);
   };
 

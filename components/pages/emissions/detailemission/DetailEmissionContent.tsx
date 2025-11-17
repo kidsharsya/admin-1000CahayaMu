@@ -9,9 +9,10 @@ import { BuildingAssetSection } from './UserAsset/BuildingAssetSection';
 import { VehicleAssetSection } from './UserAsset/VehicleAssetSection';
 import { EmissionMonthlyReport } from './MonthlyReport/EmissionMonthlyReport';
 import { TrendEmisiLineChart } from './EmissionChart/LineChartEmisi';
-import { getUserEmissionById } from '@/lib/api/userEmission';
-import { getBuildingAssetsByUserId } from '@/lib/api/userAsset';
-import type { UserEmission, UserEmissionFilters } from '@/types/userEmissionType';
+import { getUserDetailById, getUserStats } from '@/lib/api/userDetailEmission';
+import type { UserProfile, UserStats } from '@/types/userDetailType';
+import type { BuildingAsset } from '@/types/buildingAssetType';
+import type { VehicleAsset } from '@/types/vehicleAssetType';
 
 interface DetailEmissionContentProps {
   id?: string;
@@ -25,28 +26,11 @@ export function DetailEmissionContent({ id }: DetailEmissionContentProps) {
     return candidate && candidate !== 'undefined' && candidate !== 'null' ? candidate : '';
   }, [id, params]);
 
-  const [emissionAllPeriod, setEmissionAllPeriod] = useState<UserEmission | null>(null);
-  const [buildingCount, setBuildingCount] = useState(0);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [stats, setStats] = useState<UserStats | null>(null);
+  const [buildingAssets, setBuildingAssets] = useState<BuildingAsset[]>([]);
+  const [vehicleAssets, setVehicleAssets] = useState<VehicleAsset[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<UserEmissionFilters>({});
-
-  // ✅ Baca filter dari URL saat component mount
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const year = urlParams.get('year');
-    const month = urlParams.get('month');
-    const userType = urlParams.get('user_type');
-
-    const parsedFilters: UserEmissionFilters = {
-      year: year ? (year === 'semua' ? 'semua' : Number(year)) : undefined,
-      month: month ? (month === 'semua' ? 'semua' : Number(month)) : undefined,
-      user_type: userType as 'individu' | 'lembaga' | 'semua' | undefined,
-    };
-
-    setFilters(parsedFilters);
-  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -60,17 +44,17 @@ export function DetailEmissionContent({ id }: DetailEmissionContentProps) {
       try {
         setLoading(true);
 
-        const [emissionDataAllPeriod, buildingAssets] = await Promise.all([
-          getUserEmissionById(effectiveId, {}).catch(() => null), // Tanpa filter
-          getBuildingAssetsByUserId(effectiveId).catch(() => []),
-        ]);
+        // ✅ Fetch profile + assets dan stats secara parallel
+        const [userDetail, userStats] = await Promise.all([getUserDetailById(effectiveId), getUserStats(effectiveId)]);
 
         if (mounted) {
-          setEmissionAllPeriod(emissionDataAllPeriod);
-          setBuildingCount(buildingAssets.length);
+          setProfile(userDetail.profile);
+          setBuildingAssets(userDetail.building_assets);
+          setVehicleAssets(userDetail.vehicle_assets);
+          setStats(userStats);
         }
       } catch (error) {
-        console.error('Failed to fetch emission data:', error);
+        console.error('Failed to fetch user detail:', error);
       } finally {
         if (mounted) setLoading(false);
       }
@@ -79,25 +63,30 @@ export function DetailEmissionContent({ id }: DetailEmissionContentProps) {
     return () => {
       mounted = false;
     };
-  }, [effectiveId, filters]);
+  }, [effectiveId]);
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col gap-6">
       <BackButton />
 
-      {/* Pass emission dengan filter ke UserEmissionInfo */}
-      <UserEmissionInfo id={effectiveId} filters={filters} />
+      <UserEmissionInfo profile={profile} headerTotalEmisi={stats?.header_total_emisi_tons ?? 0} loading={loading} />
 
-      {/* Pass emission tanpa filter ke StatsCard */}
-      <EmissionStatsGrid total_emission={emissionAllPeriod?.total_emisi_tons ?? 0} avg_emission={emissionAllPeriod?.avg_monthly_emisi_tons ?? 0} report_count={0} building_count={buildingCount} loading={loading} />
+      <EmissionStatsGrid
+        total_emission={stats?.overview_cards.total_emisi_semua_periode_tons ?? 0}
+        avg_emission={stats?.overview_cards.avg_emisi_per_bulan_tons ?? 0}
+        report_count={stats?.overview_cards.total_laporan_emisi ?? 0}
+        building_count={stats?.overview_cards.total_bangunan ?? 0}
+        vehicle_count={stats?.overview_cards.total_kendaraan ?? 0}
+        loading={loading}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <BuildingAssetSection userId={effectiveId} />
-        <VehicleAssetSection userId={effectiveId} />
+        <BuildingAssetSection assets={buildingAssets} loading={loading} />
+        <VehicleAssetSection assets={vehicleAssets} loading={loading} />
       </div>
 
-      <EmissionMonthlyReport />
-      <TrendEmisiLineChart />
+      <EmissionMonthlyReport userId={effectiveId} />
+      <TrendEmisiLineChart userId={effectiveId} />
     </div>
   );
 }

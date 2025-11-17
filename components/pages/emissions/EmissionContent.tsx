@@ -137,7 +137,7 @@ export function EmissionContent() {
   const listrik = getEmissionByCategory('listrik');
   const transportasi = getEmissionByCategory('transportasi');
   const makanan = getEmissionByCategory('makanan');
-  const sampah = getEmissionByCategory('sampah');
+  const sampah = getEmissionByCategory('limbah');
 
   return (
     <div className="space-y-4">

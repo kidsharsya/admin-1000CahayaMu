@@ -1,26 +1,22 @@
 // components/UserRow.tsx
 import { User, Building2, TrashIcon, Eye, Pen } from 'lucide-react';
-import { UserWithRegion } from '@/types/userType';
+import { UserTypes } from '@/types/userType';
 
-interface UserRowProps extends UserWithRegion {
+interface UserRowProps extends UserTypes {
   onView?: (id: string) => void;
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
 }
 
-export function UserRow({ id, user_type, email, phone_number, province_name, city_name, district_name, sub_district_name, active, individual_profile, institution_profile, onEdit, onView, onDelete }: UserRowProps) {
+export function UserRow({ user_id, name, user_type, email, phone_number, address, is_active, onEdit, onView, onDelete }: UserRowProps) {
   const isIndividu = user_type === 'individu';
-  const isActive = active;
-
-  const address = `${sub_district_name}, ${district_name}, ${city_name}, ${province_name}`;
-
-  const displayName = isIndividu ? individual_profile?.full_name || '(Tidak ada nama)' : institution_profile?.name || '(Tidak ada nama)';
+  const isActive = is_active;
 
   return (
     <tr className="border-b last:border-none">
       <td className="py-3 flex items-center gap-3">
         {isIndividu ? <User className="bg-emerald-100 text-emerald-600 p-2 rounded-full w-8 h-8" /> : <Building2 className="bg-indigo-100 text-indigo-600 p-2 rounded-full w-8 h-8" />}
-        <span className="font-medium text-gray-700">{displayName}</span>
+        <span className="font-medium text-gray-700">{name}</span>
       </td>
 
       <td>
@@ -40,15 +36,15 @@ export function UserRow({ id, user_type, email, phone_number, province_name, cit
       {/* Aksi */}
       <td>
         <div className="flex gap-2">
-          <button type="button" onClick={() => onView?.(id)} className="bg-white hover:bg-blue-600 text-blue-600 hover:text-white rounded-md p-2 transition">
+          <button type="button" onClick={() => onView?.(user_id)} className="bg-white hover:bg-blue-600 text-blue-600 hover:text-white rounded-md p-2 transition">
             <Eye className="w-4 h-4" />
           </button>
 
-          <button type="button" onClick={() => onEdit?.(id)} className="bg-white hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-md p-2 transition">
+          <button type="button" onClick={() => onEdit?.(user_id)} className="bg-white hover:bg-emerald-600 text-emerald-600 hover:text-white rounded-md p-2 transition">
             <Pen className="w-4 h-4" />
           </button>
 
-          <button type="button" onClick={() => onDelete?.(id)} className="bg-white hover:bg-red-600 text-red-600 hover:text-white rounded-md p-2 transition">
+          <button type="button" onClick={() => onDelete?.(user_id)} className="bg-white hover:bg-red-600 text-red-600 hover:text-white rounded-md p-2 transition">
             <TrashIcon className="w-4 h-4" />
           </button>
         </div>

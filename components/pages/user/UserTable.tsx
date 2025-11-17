@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react';
 import { User } from 'lucide-react';
 import { UserRow } from './UserRow';
-import { getUserList, enrichUserWithRegion } from '@/lib/api/user';
-import { UserWithRegion, UserFilters } from '@/types/userType';
+import { getUserList } from '@/lib/api/user';
+import type { UserTypes, UserFilters } from '@/types/userType';
 import { Pagination } from '@/components/layout/Pagination';
 
 interface UserTableProps {
@@ -11,7 +11,7 @@ interface UserTableProps {
 }
 
 export function UserTable({ filters = {} }: UserTableProps) {
-  const [users, setUsers] = useState<UserWithRegion[]>([]);
+  const [users, setUsers] = useState<UserTypes[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -25,8 +25,8 @@ export function UserTable({ filters = {} }: UserTableProps) {
         page,
         per_page: 10,
       });
-      const enrichedUsers = await Promise.all(data.map(enrichUserWithRegion));
-      setUsers(enrichedUsers);
+
+      setUsers(data);
       setTotalPages(pagination.total_pages);
       setTotalItems(pagination.total_items);
       setCurrentPage(pagination.current_page);
@@ -37,15 +37,16 @@ export function UserTable({ filters = {} }: UserTableProps) {
     }
   };
 
+  // ✅ Fetch data saat currentPage atau filters berubah
   useEffect(() => {
     fetchUsers(currentPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filters]);
+  }, [currentPage, filters.user_type, filters.search]); // ✅ Track individual filter values
 
-  // Reset ke halaman 1 saat filter berubah
+  // ✅ Reset ke halaman 1 saat filter berubah
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters]);
+  }, [filters.user_type, filters.search]); // ✅ Track individual filter values
 
   return (
     <div className="p-4">
@@ -76,7 +77,7 @@ export function UserTable({ filters = {} }: UserTableProps) {
                 </td>
               </tr>
             ) : users.length > 0 ? (
-              users.map((row) => <UserRow key={row.id} {...row} onView={(id) => console.log('view', id)} onEdit={(id) => console.log('edit', id)} onDelete={(id) => console.log('delete', id)} />)
+              users.map((row) => <UserRow key={row.user_id} {...row} onView={(id) => console.log('view', id)} onEdit={(id) => console.log('edit', id)} onDelete={(id) => console.log('delete', id)} />)
             ) : (
               <tr>
                 <td colSpan={7} className="text-center py-6 text-gray-500">

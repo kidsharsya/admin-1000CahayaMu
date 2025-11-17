@@ -35,7 +35,10 @@ export const DistribusiDonutChart = ({ data, loading }: DistribusiDonutChartProp
       <p className="text-sm text-gray-500 mb-4">Persentase Kontribusi</p>
 
       {loading ? (
-        <div className="flex items-center justify-center h-[250px] text-gray-500">Memuat data...</div>
+        <div className="flex items-center justify-center h-[250px] text-gray-500 text-sm">Memuat data...</div>
+      ) : data.length === 0 ? (
+        // ✅ Tambahkan kondisi tidak ada data
+        <div className="flex items-center justify-center h-[250px] text-gray-500 text-sm">Tidak ada data kategori emisi</div>
       ) : (
         <div className="w-full flex items-center">
           <div className="w-1/2">

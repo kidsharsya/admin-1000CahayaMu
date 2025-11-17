@@ -12,7 +12,7 @@ export function UserContent() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<UserFilters>({
     user_type: 'semua',
-    name: '',
+    search: '',
   });
 
   useEffect(() => {

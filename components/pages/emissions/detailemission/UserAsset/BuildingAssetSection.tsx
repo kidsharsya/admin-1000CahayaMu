@@ -1,15 +1,15 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { Building2 } from 'lucide-react';
 import { BuildingAssetCard } from './BuildingAssetCard';
-import type { BuildingAsset } from '@/types/buildingAssetType';
-import type { ElectricityEmissionTarifWithCategoryName } from '@/types/electricityEmissionTarif';
-import { getBuildingAssetsByUserId } from '@/lib/api/userAsset';
 import { getElectricityEmissionTariffsWithCategoryName } from '@/lib/api/electricityEmissionTarif';
 import { getProvinceName, getRegencyName, getDistrictName, getVillageName } from '@/lib/api/region';
+import type { BuildingAsset } from '@/types/buildingAssetType';
+import type { ElectricityEmissionTarifWithCategoryName } from '@/types/electricityEmissionTarif';
 
 interface BuildingAssetSectionProps {
-  userId: string;
+  assets: BuildingAsset[]; // ✅ Terima assets langsung dari parent
+  loading?: boolean;
 }
 
 type EnrichedBuildingAsset = BuildingAsset & {
@@ -26,41 +26,40 @@ interface CardData {
   equipments: { name: string; unit: string }[];
 }
 
-export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
-  const [assets, setAssets] = useState<EnrichedBuildingAsset[]>([]);
+export function BuildingAssetSection({ assets, loading = false }: BuildingAssetSectionProps) {
+  const [enrichedAssets, setEnrichedAssets] = useState<EnrichedBuildingAsset[]>([]);
   const [tariffMap, setTariffMap] = useState<Map<string, ElectricityEmissionTarifWithCategoryName>>(new Map());
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [enriching, setEnriching] = useState(false);
 
+  // ✅ Fetch tariff mapping
   useEffect(() => {
-    let mounted = true;
+    (async () => {
+      try {
+        const tariffsResponse = await getElectricityEmissionTariffsWithCategoryName(1, 1000);
+        const tariffMapLocal = new Map<string, ElectricityEmissionTarifWithCategoryName>();
+        (tariffsResponse?.data ?? []).forEach((t) => {
+          tariffMapLocal.set(t.id, t);
+        });
+        setTariffMap(tariffMapLocal);
+      } catch (error) {
+        console.error('Failed to fetch tariffs:', error);
+      }
+    })();
+  }, []);
 
-    if (!userId) {
-      setError('User ID tidak valid');
-      setLoading(false);
+  // ✅ Enrich assets dengan alamat lengkap
+  useEffect(() => {
+    if (assets.length === 0) {
+      setEnrichedAssets([]);
       return;
     }
 
     (async () => {
       try {
-        setLoading(true);
-        setError(null);
+        setEnriching(true);
 
-        const [assetList, tariffsResponse] = await Promise.all([
-          getBuildingAssetsByUserId(userId),
-          getElectricityEmissionTariffsWithCategoryName(1, 1000), // ✅ Fetch semua tariff sekaligus
-        ]);
-
-        if (!mounted) return;
-
-        const tariffMapLocal = new Map<string, ElectricityEmissionTarifWithCategoryName>();
-        (tariffsResponse?.data ?? []).forEach((t) => {
-          tariffMapLocal.set(t.id, t);
-        });
-
-        // ✅ Enrich building assets dengan alamat lengkap
         const enriched: EnrichedBuildingAsset[] = await Promise.all(
-          assetList.map(async (a) => {
+          assets.map(async (a) => {
             const addressCore = a.full_address || a.address_label || '-';
             try {
               const provinceCode = a.province_code.startsWith('id') ? a.province_code : `id${a.province_code}`;
@@ -85,22 +84,17 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
           })
         );
 
-        setAssets(enriched);
-        setTariffMap(tariffMapLocal);
-      } catch (e) {
-        if (mounted) setError(e instanceof Error ? e.message : 'Gagal memuat aset bangunan');
+        setEnrichedAssets(enriched);
+      } catch (error) {
+        console.error('Failed to enrich building assets:', error);
       } finally {
-        if (mounted) setLoading(false);
+        setEnriching(false);
       }
     })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [userId]);
+  }, [assets]);
 
   const cards: CardData[] = useMemo(() => {
-    return assets.map((a) => {
+    return enrichedAssets.map((a) => {
       const tariff = a.electricity_tariff_id ? tariffMap.get(a.electricity_tariff_id) : undefined;
       const area = typeof a.metadata?.area_sqm === 'number' ? `${a.metadata.area_sqm} m²` : '-';
 
@@ -114,16 +108,16 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
       return {
         key: a.id,
         name: a.name,
-        electricityType: tariff?.category_name ?? '-', // ✅ Sudah ada dari tariffMap
+        electricityType: tariff?.category_name ?? '-',
         electricityPower: a.power_capacity_label ?? '-',
         area,
         address: a.__long_address,
         equipments,
       };
     });
-  }, [assets, tariffMap]);
+  }, [enrichedAssets, tariffMap]);
 
-  if (loading) {
+  if (loading || enriching) {
     return (
       <div className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
         <div className="flex items-center gap-2 mb-4">
@@ -133,10 +127,6 @@ export function BuildingAssetSection({ userId }: BuildingAssetSectionProps) {
         <div className="h-24 bg-gray-100 animate-pulse rounded-md" />
       </div>
     );
-  }
-
-  if (error) {
-    return <div className="border border-red-200 rounded-xl p-4 bg-red-50 text-red-700">{error}</div>;
   }
 
   return (

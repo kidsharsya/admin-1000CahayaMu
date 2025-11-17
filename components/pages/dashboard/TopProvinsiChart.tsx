@@ -21,6 +21,9 @@ export const TopProvinsiCard = ({ data, loading }: TopProvinsiCardProps) => {
 
       {loading ? (
         <div className="flex items-center justify-center h-[200px] text-gray-500 text-sm">Memuat data...</div>
+      ) : sortedData.length === 0 ? (
+        // ✅ Tambahkan kondisi tidak ada data
+        <div className="flex items-center justify-center h-[200px] text-gray-500 text-sm">Tidak ada data provinsi</div>
       ) : (
         <div className="space-y-3">
           {sortedData.map((item, i) => {

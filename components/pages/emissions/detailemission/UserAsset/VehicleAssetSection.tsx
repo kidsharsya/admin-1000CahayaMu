@@ -1,47 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Car } from 'lucide-react';
 import { VehicleAssetCard } from './VehicleAssetCard';
-import { getVehicleAssetsByUserId } from '@/lib/api/userAsset';
 import type { VehicleAsset } from '@/types/vehicleAssetType';
 
 interface VehicleAssetSectionProps {
-  userId: string;
+  assets: VehicleAsset[]; // ✅ Terima assets langsung dari parent
+  loading?: boolean;
 }
 
-export function VehicleAssetSection({ userId }: VehicleAssetSectionProps) {
-  const [assets, setAssets] = useState<VehicleAsset[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    if (!userId) {
-      setError('ID pengguna tidak valid.');
-      setLoading(false);
-      return;
-    }
-
-    (async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getVehicleAssetsByUserId(userId);
-        if (mounted) setAssets(data);
-      } catch (e) {
-        if (mounted) setError(e instanceof Error ? e.message : 'Gagal memuat aset kendaraan.');
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, [userId]);
-
+export function VehicleAssetSection({ assets, loading = false }: VehicleAssetSectionProps) {
   if (loading) {
     return (
       <div className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
@@ -52,10 +20,6 @@ export function VehicleAssetSection({ userId }: VehicleAssetSectionProps) {
         <div className="h-24 bg-gray-100 animate-pulse rounded-md" />
       </div>
     );
-  }
-
-  if (error) {
-    return <div className="border border-red-200 rounded-xl p-4 bg-red-50 text-red-700">{error}</div>;
   }
 
   return (
