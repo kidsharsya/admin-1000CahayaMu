@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 
 export function HeroSection() {
   return (
@@ -22,9 +23,9 @@ export function HeroSection() {
 
           <p className="text-lg md:text-xl text-white leading-relaxed drop-shadow">Bersama mencegah krisis iklim melalui transisi energi. Hitung jejak karbon Anda, ambil aksi nyata, dan jadilah bagian dari 1000 cahaya perubahan.</p>
 
-          {/* <Link href="/hitung-jejak-karbon" className="inline-block px-6 py-3 bg-emerald-600 text-white text-md rounded-md font-semibold hover:bg-emerald-700 transition">
+          <Link href="/hitung-jejak-karbon" className="inline-block px-6 py-3 bg-emerald-500 text-white text-lg rounded-md font-semibold hover:bg-emerald-700 transition">
             Hitung Jejak Karbon
-          </Link> */}
+          </Link>
         </div>
       </div>
     </section>

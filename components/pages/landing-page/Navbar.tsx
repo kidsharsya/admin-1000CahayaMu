@@ -9,7 +9,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { label: 'Tentang', href: '#hero' },
+    { label: 'Tentang', href: '#tentang' },
     { label: 'Fitur', href: '#fitur' },
     { label: 'Dampak', href: '#dampak' },
   ];
@@ -37,7 +37,7 @@ export function Navbar() {
         </div>
 
         {/* Mobile Button */}
-        <button className="md:hidden text-white" onClick={() => setOpen(!open)}>
+        <button className="md:hidden text-white" aria-label="Toggle menu" onClick={() => setOpen(!open)}>
           {open ? <X size={28} /> : <Menu size={28} />}
         </button>
       </div>
@@ -51,7 +51,7 @@ export function Navbar() {
             </a>
           ))}
 
-          <Link href="/login-admin" onClick={() => setOpen(false)} className="block w-full text-center px-4 py-2 bg-emerald-600 text-white rounded-md font-semibold hover:bg-white/90 transition">
+          <Link href="/login-admin" onClick={() => setOpen(false)} className="block w-full text-center px-4 py-2 bg-emerald-600 text-white rounded-md font-semibold hover:bg-emerald-700 transition">
             Mulai Sekarang
           </Link>
         </div>

@@ -15,9 +15,9 @@ interface RenewableInfo {
 
 export interface EmissionCardProps {
   category: Category;
-  date: string; // ISO string or display date
-  titleLeft?: string; // e.g. 'Kendaraan:' or 'Bangunan:'
-  titleRight?: string; // e.g. 'Toyota Avanza G' / 'Rumah Tinggal Ahmad'
+  date: string;
+  titleLeft?: string;
+  titleRight?: string;
   fields: Field[];
   renewable?: RenewableInfo;
   emissionKg: number;
