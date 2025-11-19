@@ -121,3 +121,49 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Tiptap Editor Styling */
+.ProseMirror {
+  outline: none;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
+.ProseMirror h3 {
+  @apply text-lg font-semibold text-gray-900 mb-3 mt-6;
+}
+
+.ProseMirror p {
+  @apply text-gray-600 leading-relaxed mb-4;
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  @apply space-y-2 text-gray-600 mb-4 pl-6;
+}
+
+.ProseMirror ul {
+  @apply list-disc;
+}
+
+.ProseMirror ol {
+  @apply list-decimal;
+}
+
+.ProseMirror li {
+  @apply text-gray-600;
+}
+
+.ProseMirror strong {
+  @apply font-semibold text-gray-800;
+}
+
+.ProseMirror em {
+  @apply italic;
+}
