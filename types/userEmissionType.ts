@@ -48,6 +48,7 @@ export interface UserEmissionFilters {
   per_page?: number;
 }
 
+// ✅ Update structure sesuai response baru
 export interface EmissionOverviewItem {
   category: string;
   comparison_percent: number;
@@ -57,4 +58,14 @@ export interface EmissionOverviewItem {
 
 export interface EmissionOverview {
   data: EmissionOverviewItem[];
+  total_emission_tons: number; // ✅ Tambah field total
+}
+
+export interface EmissionOverviewResponse {
+  reqId: string;
+  meta: {
+    success: boolean;
+    message: string;
+  };
+  data: EmissionOverview; // ✅ Nested data object
 }

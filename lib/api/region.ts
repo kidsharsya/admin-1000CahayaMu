@@ -51,7 +51,7 @@ export async function getProvinceName(code: string): Promise<string> {
 // ==============================
 // 🏡 KABUPATEN / KOTA
 // ==============================
-export async function getRegencies(provinceCode: string): Promise<Record<string, string>> {
+export async function getRegenciesByProvince(provinceCode: string): Promise<Record<string, string>> {
   if (cache.regencies.has(provinceCode)) {
     return cache.regencies.get(provinceCode)!;
   }
@@ -78,15 +78,18 @@ export async function getRegencies(provinceCode: string): Promise<Record<string,
   return map;
 }
 
+// ✅ Alias untuk backward compatibility
+export const getRegencies = getRegenciesByProvince;
+
 export async function getRegencyName(code: string, provinceCode: string): Promise<string> {
-  const regencies = await getRegencies(provinceCode);
+  const regencies = await getRegenciesByProvince(provinceCode);
   return regencies[code] || '-';
 }
 
 // ==============================
 // 🏘️ KECAMATAN
 // ==============================
-export async function getDistricts(regencyCode: string): Promise<Record<string, string>> {
+export async function getDistrictsByRegency(regencyCode: string): Promise<Record<string, string>> {
   if (cache.districts.has(regencyCode)) {
     return cache.districts.get(regencyCode)!;
   }
@@ -113,15 +116,18 @@ export async function getDistricts(regencyCode: string): Promise<Record<string, 
   return map;
 }
 
+// ✅ Alias untuk backward compatibility
+export const getDistricts = getDistrictsByRegency;
+
 export async function getDistrictName(code: string, regencyCode: string): Promise<string> {
-  const districts = await getDistricts(regencyCode);
+  const districts = await getDistrictsByRegency(regencyCode);
   return districts[code] || '-';
 }
 
 // ==============================
 // 🏠 KELURAHAN / DESA
 // ==============================
-export async function getVillages(districtCode: string): Promise<Record<string, string>> {
+export async function getVillagesByDistrict(districtCode: string): Promise<Record<string, string>> {
   if (cache.villages.has(districtCode)) {
     return cache.villages.get(districtCode)!;
   }
@@ -148,7 +154,10 @@ export async function getVillages(districtCode: string): Promise<Record<string, 
   return map;
 }
 
+// ✅ Alias untuk backward compatibility
+export const getVillages = getVillagesByDistrict;
+
 export async function getVillageName(code: string, districtCode: string): Promise<string> {
-  const villages = await getVillages(districtCode);
+  const villages = await getVillagesByDistrict(districtCode);
   return villages[code] || '-';
 }

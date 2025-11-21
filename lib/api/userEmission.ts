@@ -1,4 +1,4 @@
-import type { UserEmission, UserEmissionPagination, UserEmissionFilters, EmissionOverviewItem } from '@/types/userEmissionType';
+import type { UserEmission, UserEmissionPagination, UserEmissionFilters, EmissionOverview } from '@/types/userEmissionType';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -101,7 +101,7 @@ export async function getUserEmissionById(userId: string, filters?: { year?: num
 /**
  * ✅ Fetch emission overview dengan filter year & month
  */
-export async function getEmissionOverview(filters?: { year?: number | 'semua'; month?: number | 'semua' }): Promise<EmissionOverviewItem[]> {
+export async function getEmissionOverview(filters?: { year?: number | 'semua'; month?: number | 'semua'; user_type?: 'individu' | 'lembaga' | 'semua' }): Promise<EmissionOverview> {
   const params = new URLSearchParams();
 
   // ✅ Tambahkan filter year & month
@@ -111,6 +111,10 @@ export async function getEmissionOverview(filters?: { year?: number | 'semua'; m
 
   if (filters?.month && filters.month !== 'semua') {
     params.set('month', String(filters.month));
+  }
+
+  if (filters?.user_type && filters.user_type !== 'semua') {
+    params.set('user_type', filters.user_type);
   }
 
   const res = await fetch(`${API_URL}/admin/dashboard/emissions/overview?${params.toString()}`, {

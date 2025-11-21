@@ -22,11 +22,11 @@ export function GridEmissionFormModal({ isOpen, onClose, onSuccess }: GridEmissi
 
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, type, value, checked } = e.target as HTMLInputElement;
     setForm((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === 'checkbox' ? checked : type === 'number' ? Number(value) : value,
     }));
   };
 
@@ -74,12 +74,21 @@ export function GridEmissionFormModal({ isOpen, onClose, onSuccess }: GridEmissi
             {/* Category Name */}
             <div>
               <label className="block text-sm text-gray-600 mb-1">Nama Region</label>
-              <input type="text" name="region_name" value={form.region_name} onChange={handleChange} required className="w-full border rounded-md px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500" />
+              <input type="text" name="region_name" value={form.region_name} onChange={handleChange} required className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500" />
             </div>
 
             <div>
               <label className="block text-sm text-gray-600 mb-1">CO2e per kWh</label>
-              <input type="number" name="co2e_per_kwh" value={form.region_name} onChange={handleChange} required min={0} step={1} className="w-full border rounded-md px-3 py-2 text-sm focus:ring-emerald-500 focus:border-emerald-500" />
+              <input
+                type="number"
+                name="co2e_per_kwh"
+                value={form.co2e_per_kwh}
+                onChange={handleChange}
+                required
+                min={0}
+                step={1}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              />
             </div>
 
             {/* Active */}

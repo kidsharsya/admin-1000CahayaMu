@@ -2,20 +2,32 @@
 import { useEffect, useState } from 'react';
 import { User } from 'lucide-react';
 import { UserRow } from './UserRow';
+import { UserEditModal } from './UserEditModal';
+import { UserDeleteModal } from './UserDeleteModal';
+import { UserViewModal } from './UserViewModal';
 import { getUserList } from '@/lib/api/user';
 import type { UserTypes, UserFilters } from '@/types/userType';
 import { Pagination } from '@/components/layout/Pagination';
 
 interface UserTableProps {
   filters?: UserFilters;
+  refreshTrigger?: number;
+  onRefresh?: () => void;
 }
 
-export function UserTable({ filters = {} }: UserTableProps) {
+export function UserTable({ filters = {}, refreshTrigger = 0, onRefresh }: UserTableProps) {
   const [users, setUsers] = useState<UserTypes[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
+
+  // Modal states
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [selectedUserName, setSelectedUserName] = useState<string>('');
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
@@ -37,16 +49,35 @@ export function UserTable({ filters = {} }: UserTableProps) {
     }
   };
 
-  // ✅ Fetch data saat currentPage atau filters berubah
   useEffect(() => {
     fetchUsers(currentPage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filters.user_type, filters.search]); // ✅ Track individual filter values
+  }, [currentPage, filters.user_type, filters.search, refreshTrigger]);
 
-  // ✅ Reset ke halaman 1 saat filter berubah
   useEffect(() => {
     setCurrentPage(1);
-  }, [filters.user_type, filters.search]); // ✅ Track individual filter values
+  }, [filters.user_type, filters.search]);
+
+  const handleView = (userId: string) => {
+    setSelectedUserId(userId);
+    setViewModalOpen(true);
+  };
+
+  const handleEdit = (userId: string) => {
+    setSelectedUserId(userId);
+    setEditModalOpen(true);
+  };
+
+  const handleDelete = (userId: string, userName: string) => {
+    setSelectedUserId(userId);
+    setSelectedUserName(userName);
+    setDeleteModalOpen(true);
+  };
+
+  const handleSuccess = () => {
+    fetchUsers(currentPage);
+    onRefresh?.();
+  };
 
   return (
     <div className="p-4">
@@ -58,7 +89,7 @@ export function UserTable({ filters = {} }: UserTableProps) {
 
       <div className="w-full overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="text-gray-500 text-left border-b">
+          <thead className="text-gray-500 text-left border-b border-gray-200">
             <tr>
               <th className="pb-2">Nama</th>
               <th className="pb-2">Jenis</th>
@@ -77,7 +108,7 @@ export function UserTable({ filters = {} }: UserTableProps) {
                 </td>
               </tr>
             ) : users.length > 0 ? (
-              users.map((row) => <UserRow key={row.user_id} {...row} onView={(id) => console.log('view', id)} onEdit={(id) => console.log('edit', id)} onDelete={(id) => console.log('delete', id)} />)
+              users.map((row) => <UserRow key={row.user_id} {...row} onView={handleView} onEdit={handleEdit} onDelete={handleDelete} />)
             ) : (
               <tr>
                 <td colSpan={7} className="text-center py-6 text-gray-500">
@@ -89,8 +120,12 @@ export function UserTable({ filters = {} }: UserTableProps) {
         </table>
       </div>
 
-      {/* Pagination */}
       {!loading && totalPages > 1 && <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={(page) => setCurrentPage(page)} />}
+
+      {/* Modals */}
+      {viewModalOpen && <UserViewModal isOpen={viewModalOpen} onClose={() => setViewModalOpen(false)} userId={selectedUserId} />}
+      {editModalOpen && <UserEditModal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} onSuccess={handleSuccess} userId={selectedUserId} />}
+      {deleteModalOpen && <UserDeleteModal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onSuccess={handleSuccess} userId={selectedUserId} userName={selectedUserName} />}
     </div>
   );
 }

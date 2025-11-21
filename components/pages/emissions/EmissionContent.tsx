@@ -7,10 +7,8 @@ import { EmissionFilter } from './EmissionFilter';
 import { EmissionTable } from './EmissionTable';
 import { StatCardEmission } from './StatCard';
 import { SummaryFilter } from './SummaryFilter';
-import { getDashboardOverview } from '@/lib/api/dashboardOverview';
 import { getEmissionOverview } from '@/lib/api/userEmission';
-import type { DashboardOverview } from '@/types/dashboardOverview';
-import type { UserEmissionFilters, EmissionOverviewItem } from '@/types/userEmissionType';
+import type { UserEmissionFilters, EmissionOverview } from '@/types/userEmissionType';
 
 export function EmissionContent() {
   const router = useRouter();
@@ -19,15 +17,13 @@ export function EmissionContent() {
   const now = new Date();
   const currentYear = now.getFullYear();
 
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false); // ✅ State modal
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [filters, setFilters] = useState<UserEmissionFilters>({
     year: currentYear,
     month: 'semua',
     user_type: 'semua',
   });
-  const [stats, setStats] = useState<DashboardOverview | null>(null);
-  const [emissionOverview, setEmissionOverview] = useState<EmissionOverviewItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [emissionOverview, setEmissionOverview] = useState<EmissionOverview | null>(null); // ✅ Change type
   const [overviewLoading, setOverviewLoading] = useState(true);
 
   // ✅ Sync filters dari URL
@@ -45,28 +41,7 @@ export function EmissionContent() {
     });
   }, [searchParams, currentYear]);
 
-  // ✅ Fetch dashboard stats
-  useEffect(() => {
-    let mounted = true;
-
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await getDashboardOverview();
-        if (mounted) setStats(data);
-      } catch (error) {
-        console.error('Failed to fetch dashboard overview:', error);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    })();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  // ✅ Fetch emission overview
+  // ✅ Fetch emission overview dengan filter (termasuk user_type)
   useEffect(() => {
     let mounted = true;
 
@@ -76,6 +51,7 @@ export function EmissionContent() {
         const data = await getEmissionOverview({
           year: filters.year,
           month: filters.month,
+          user_type: filters.user_type, // ✅ Tambahkan user_type
         });
         if (mounted) setEmissionOverview(data);
       } catch (error) {
@@ -88,7 +64,7 @@ export function EmissionContent() {
     return () => {
       mounted = false;
     };
-  }, [filters.year, filters.month]);
+  }, [filters.year, filters.month, filters.user_type]); // ✅ Tambah dependency user_type
 
   const handleFilterChange = (newFilters: UserEmissionFilters) => {
     const updatedFilters = { ...filters, ...newFilters };
@@ -115,8 +91,9 @@ export function EmissionContent() {
     handleFilterChange({ search });
   };
 
-  const getEmissionByCategory = (category: string): EmissionOverviewItem | undefined => {
-    return emissionOverview.find((item) => item.category === category);
+  // ✅ Helper untuk cari data berdasarkan category
+  const getEmissionByCategory = (category: string) => {
+    return emissionOverview?.data.find((item) => item.category === category);
   };
 
   // ✅ Format active filters untuk display
@@ -133,7 +110,8 @@ export function EmissionContent() {
     return parts.length > 0 ? parts.join(' • ') : 'Semua Data';
   };
 
-  const totalEmissionsTons = stats?.total_emissions ?? 0;
+  // ✅ Ambil data dari emissionOverview
+  const totalEmissionsTons = emissionOverview?.total_emission_tons ?? 0;
   const listrik = getEmissionByCategory('listrik');
   const transportasi = getEmissionByCategory('transportasi');
   const makanan = getEmissionByCategory('makanan');
@@ -155,7 +133,8 @@ export function EmissionContent() {
 
       {/* StatCards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <StatCardEmission title="Total Emisi" value={loading ? '...' : totalEmissionsTons.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} unit="ton CO₂e" />
+        {/* ✅ Total Emisi - gunakan emissionOverview.total_emission_tons */}
+        <StatCardEmission title="Total Emisi" value={overviewLoading ? '...' : totalEmissionsTons.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} unit="ton CO₂e" />
 
         <StatCardEmission
           title="Total Emisi Listrik"

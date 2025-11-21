@@ -32,13 +32,15 @@ export interface DashboardMainOverview {
   category_distribution: CategoryDistribution[];
   overview_cards: OverviewCards;
   top_provinces: TopProvince[];
+  total_electricity_spending_rp: number;
+  total_fuel_spending_rp: number;
 }
 
 export interface DashboardFilters {
   year?: number | 'semua';
   month?: number | 'semua';
   user_type?: 'individu' | 'lembaga' | 'semua';
-  provinces?: string[];
+  provinces?: string[]; // ✅ Array of province codes (e.g., ["id33", "id34"])
 }
 
 // ✅ Tambahkan type untuk National Trend
@@ -50,4 +52,12 @@ export interface NationalTrendDataset {
 export interface NationalTrend {
   labels: string[]; // ["Januari", "Februari", ...]
   datasets: NationalTrendDataset[];
+}
+
+export interface NationalTrendResponse {
+  reqId: string;
+  meta: {
+    success: boolean;
+  };
+  data: NationalTrend; // ✅ Nested data
 }

@@ -77,6 +77,8 @@ export function DetailEmissionContent({ id }: DetailEmissionContentProps) {
         report_count={stats?.overview_cards.total_laporan_emisi ?? 0}
         building_count={stats?.overview_cards.total_bangunan ?? 0}
         vehicle_count={stats?.overview_cards.total_kendaraan ?? 0}
+        total_electricity_spending_rp={stats?.total_electricity_spending_rp ?? 0}
+        total_fuel_spending_rp={stats?.total_fuel_spending_rp ?? 0}
         loading={loading}
       />
 

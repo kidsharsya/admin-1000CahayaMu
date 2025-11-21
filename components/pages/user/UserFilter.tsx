@@ -6,9 +6,10 @@ import type { UserFilters } from '@/types/userType';
 interface UserFilterProps {
   onFilterChange?: (filters: Partial<UserFilters>) => void;
   initialFilters?: Partial<UserFilters>;
+  onAddUser?: () => void; // ✅ Tambah prop untuk handle add user
 }
 
-export function UserFilter({ onFilterChange, initialFilters }: UserFilterProps) {
+export function UserFilter({ onFilterChange, initialFilters, onAddUser }: UserFilterProps) {
   const [selectedType, setSelectedType] = useState<'semua' | 'individu' | 'lembaga'>((initialFilters?.user_type as 'semua' | 'individu' | 'lembaga') || 'semua');
   const [searchName, setSearchName] = useState(initialFilters?.search || '');
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
@@ -66,8 +67,8 @@ export function UserFilter({ onFilterChange, initialFilters }: UserFilterProps) 
         <option value="lembaga">Lembaga</option>
       </select>
 
-      {/* Tombol Tambah User */}
-      <button type="button" className="ml-auto flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium py-2 px-4 rounded-md transition">
+      {/* ✅ Tombol Tambah User - Fungsikan dengan onClick */}
+      <button type="button" onClick={onAddUser} className="ml-auto flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-medium py-2 px-4 rounded-md transition">
         <Plus className="w-4 h-4" />
         Tambah User
       </button>

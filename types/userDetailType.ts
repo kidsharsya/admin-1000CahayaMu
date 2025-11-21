@@ -35,6 +35,8 @@ export interface UserStats {
     total_kendaraan: number;
     total_laporan_emisi: number;
   };
+  total_electricity_spending_rp: number;
+  total_fuel_spending_rp: number;
 }
 
 // ✅ User Stats Response

@@ -1,5 +1,5 @@
 // lib/api/dashboard.ts
-import type { DashboardMainOverview, DashboardFilters, NationalTrend } from '@/types/dashboardType';
+import type { DashboardMainOverview, DashboardFilters, NationalTrend, NationalTrendResponse } from '@/types/dashboardType';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -79,19 +79,19 @@ export async function getNationalTrend(year?: number | 'semua'): Promise<Nationa
       },
     });
 
-    const data = await res.json();
-    console.log('📊 National trend response:', data);
+    const json: NationalTrendResponse = await res.json(); // ✅ Type response wrapper
+    console.log('📊 National trend response:', json);
 
-    if (!res.ok) {
+    if (!res.ok || !json.meta?.success) {
       throw new Error('Failed to fetch national trend');
     }
 
-    // ✅ Response langsung berisi { datasets, labels }, TIDAK ADA wrapper meta/data
-    if (!data.datasets || !data.labels) {
+    // ✅ Return nested data.data yang berisi { datasets, labels }
+    if (!json.data?.datasets || !json.data?.labels) {
       throw new Error('Invalid response structure from national trend API');
     }
 
-    return data; // ✅ Return langsung, bukan data.data
+    return json.data; // ✅ Return nested data
   } catch (error) {
     console.error('❌ Fetch national trend failed:', error);
     throw error;

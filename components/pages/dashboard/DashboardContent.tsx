@@ -120,6 +120,13 @@ export function DashboardContent() {
         />
       </div>
 
+      {/* Row 2: Spending */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <StatCard title="Total Biaya Listrik" value={loading ? '...' : data?.total_electricity_spending_rp.toLocaleString('id-ID') || '0'} unit="Rupiah" change="Tidak ada perubahan" changeType={undefined} />
+
+        <StatCard title="Total Biaya Bahan Bakar" value={loading ? '...' : data?.total_fuel_spending_rp.toLocaleString('id-ID') || '0'} unit="Rupiah" change="Tidak ada perubahan" changeType={undefined} />
+      </div>
+
       {/* Row 2: Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <TopProvinsiCard data={data?.top_provinces || []} loading={loading} />
