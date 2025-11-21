@@ -1,4 +1,4 @@
-import { GridEmissionTypes } from '@/types/gridEmissionType';
+import type { GridEmissionFactor, GridEmissionFactorResponse, GridEmissionFactorSingleResponse, GridEmissionFactorPayload, GridEmissionPagination } from '@/types/gridEmissionType';
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -7,9 +7,18 @@ function getAuthHeader() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// ✅ Get All grid emission factor
-export async function getGridEmissionFactors(): Promise<GridEmissionTypes[]> {
-  const res = await fetch(`${API_URL}/grid-emission-factors`, {
+// ✅ Get All grid emission factors dengan pagination
+export async function getGridEmissionFactors(params?: { page?: number; per_page?: number }): Promise<{
+  data: GridEmissionFactor[];
+  pagination: GridEmissionPagination;
+}> {
+  const queryParams = new URLSearchParams();
+  if (params?.page) queryParams.set('page', String(params.page));
+  if (params?.per_page) queryParams.set('per_page', String(params.per_page));
+
+  const url = `${API_URL}/grid-emission-factors${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+
+  const res = await fetch(url, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -17,17 +26,20 @@ export async function getGridEmissionFactors(): Promise<GridEmissionTypes[]> {
     } as HeadersInit,
   });
 
-  const data = await res.json();
+  const json: GridEmissionFactorResponse = await res.json();
 
-  if (!res.ok || !data.meta?.success) {
-    throw new Error(data.meta?.message || 'Failed to fetch grid emission factors');
+  if (!res.ok || !json.meta?.success) {
+    throw new Error(json.meta?.message || 'Failed to fetch grid emission factors');
   }
 
-  return data.data;
+  return {
+    data: json.data,
+    pagination: json.pagination,
+  };
 }
 
 // ✅ Get by ID
-export async function getGridEmissionFactorById(id: string): Promise<GridEmissionTypes> {
+export async function getGridEmissionFactorById(id: string): Promise<GridEmissionFactor> {
   const res = await fetch(`${API_URL}/grid-emission-factors/${id}`, {
     method: 'GET',
     headers: {
@@ -36,17 +48,17 @@ export async function getGridEmissionFactorById(id: string): Promise<GridEmissio
     } as HeadersInit,
   });
 
-  const data = await res.json();
+  const json: GridEmissionFactorSingleResponse = await res.json();
 
-  if (!res.ok || !data.meta?.success) {
-    throw new Error(data.meta?.message || 'Failed to fetch grid emission factor by ID');
+  if (!res.ok || !json.meta?.success) {
+    throw new Error(json.meta?.message || 'Failed to fetch grid emission factor by ID');
   }
 
-  return data.data;
+  return json.data;
 }
 
 // ✅ Create
-export async function createGridEmissionFactor(payload: Omit<GridEmissionTypes, 'id'>) {
+export async function createGridEmissionFactor(payload: GridEmissionFactorPayload): Promise<GridEmissionFactor> {
   const res = await fetch(`${API_URL}/grid-emission-factors`, {
     method: 'POST',
     headers: {
@@ -56,17 +68,17 @@ export async function createGridEmissionFactor(payload: Omit<GridEmissionTypes, 
     body: JSON.stringify(payload),
   });
 
-  const data = await res.json();
+  const json: GridEmissionFactorSingleResponse = await res.json();
 
-  if (!res.ok || !data.meta?.success) {
-    throw new Error(data.meta?.message || 'Failed to create grid emission factor');
+  if (!res.ok || !json.meta?.success) {
+    throw new Error(json.meta?.message || 'Failed to create grid emission factor');
   }
 
-  return data.data;
+  return json.data;
 }
 
 // ✅ Update
-export async function updateGridEmissionFactor(id: string, payload: Partial<GridEmissionTypes>) {
+export async function updateGridEmissionFactor(id: string, payload: Partial<GridEmissionFactorPayload>): Promise<GridEmissionFactor> {
   const res = await fetch(`${API_URL}/grid-emission-factors/${id}`, {
     method: 'PUT',
     headers: {
@@ -76,17 +88,17 @@ export async function updateGridEmissionFactor(id: string, payload: Partial<Grid
     body: JSON.stringify(payload),
   });
 
-  const data = await res.json();
+  const json: GridEmissionFactorSingleResponse = await res.json();
 
-  if (!res.ok || !data.meta?.success) {
-    throw new Error(data.meta?.message || 'Failed to update grid emission factor');
+  if (!res.ok || !json.meta?.success) {
+    throw new Error(json.meta?.message || 'Failed to update grid emission factor');
   }
 
-  return data.data;
+  return json.data;
 }
 
 // ✅ Delete
-export async function deleteGridEmissionFactor(id: string) {
+export async function deleteGridEmissionFactor(id: string): Promise<void> {
   const res = await fetch(`${API_URL}/grid-emission-factors/${id}`, {
     method: 'DELETE',
     headers: {
@@ -95,11 +107,9 @@ export async function deleteGridEmissionFactor(id: string) {
     } as HeadersInit,
   });
 
-  const data = await res.json();
+  const json = await res.json();
 
-  if (!res.ok || !data.meta?.success) {
-    throw new Error(data.meta?.message || 'Failed to delete grid emission factor');
+  if (!res.ok || !json.meta?.success) {
+    throw new Error(json.meta?.message || 'Failed to delete grid emission factor');
   }
-
-  return data.data;
 }

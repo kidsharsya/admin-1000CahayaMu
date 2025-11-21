@@ -85,7 +85,7 @@ export function EmissionTable({ filters = {} }: EmissionTableProps) {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="p-4">
       <div className="flex items-center gap-2 mb-2">
         <Database className="w-5 h-5 text-gray-600" />
         <h3 className="font-semibold text-gray-700">Data Emisi</h3>
